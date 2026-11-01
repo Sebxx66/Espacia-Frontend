@@ -1,9 +1,9 @@
-# BiblioSpace — Frontend
+# Espacia — Frontend
 
 Aplicación web para reservar salas de estudio, equipos y talleres de la biblioteca.
 React 19 · Vite · TypeScript · Tailwind CSS 4.
 
-Necesita el backend de [BiblioSpace-Backend](https://github.com/Sebxx66/BiblioSpace-Backend) funcionando (por defecto en `http://localhost:8080`).
+Necesita el backend de [Espacia-Backend](https://github.com/Sebxx66/Espacia-Backend) funcionando (por defecto en `http://localhost:8080`).
 
 ## Vista previa
 

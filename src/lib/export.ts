@@ -20,7 +20,7 @@ export function exportReservationsCsv(reservations: Reservation[]) {
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a");
   a.href = url;
-  a.download = `reservas-bibliospace-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `reservas-espacia-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a);
   a.click();
   a.remove();

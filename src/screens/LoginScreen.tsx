@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, CalendarCheck, Eye, EyeOff, LibraryBig, Lock, Mail, ShieldCheck, Timer, UserPlus } from "lucide-react";
+import { ArrowLeft, CalendarCheck, Eye, EyeOff, Lock, Mail, ShieldCheck, Timer, UserPlus } from "lucide-react";
+import LogoMark from "../components/LogoMark";
 import { forgotPassword, login, register, resetPassword, RULES, type Session } from "../api";
 import { Alert, Button, Field, Input } from "../components/ui";
 
@@ -108,9 +109,9 @@ export default function LoginScreen({ onLogin }: Props) {
 
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4C6EF5] to-[#6C8BFF] flex items-center justify-center shadow-xl shadow-[#4C6EF5]/30">
-            <LibraryBig className="w-6 h-6 text-white" />
+            <LogoMark className="w-7 h-7" />
           </div>
-          <span className="font-display font-700 text-white text-xl tracking-tight">BiblioSpace</span>
+          <span className="font-display font-700 text-white text-xl tracking-tight">Espacia</span>
         </div>
 
         <div className="relative z-10 space-y-10 max-w-xl">
@@ -150,9 +151,9 @@ export default function LoginScreen({ onLogin }: Props) {
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2.5 mb-10">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4C6EF5] to-[#6C8BFF] flex items-center justify-center">
-              <LibraryBig className="w-5 h-5 text-white" />
+              <LogoMark className="w-6 h-6" />
             </div>
-            <span className="font-display font-700 text-white text-lg">BiblioSpace</span>
+            <span className="font-display font-700 text-white text-lg">Espacia</span>
           </div>
 
           {(mode === "forgot" || mode === "reset") && (

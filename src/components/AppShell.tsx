@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { KeyRound, LibraryBig, LogOut, Menu, X } from "lucide-react";
+import { KeyRound, LogOut, Menu, X } from "lucide-react";
+import LogoMark from "./LogoMark";
 import { changePassword, RULES, ROLE_LABEL, type Session } from "../api";
 import { formatNow } from "../lib/format";
 import { Alert, Button, cx, Field, Input, Modal, useUi } from "./ui";
@@ -42,10 +43,10 @@ export default function AppShell({ session, items, active, onSelect, onLogout, t
     <>
       <div className="flex items-center gap-3 px-2 mb-8">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4C6EF5] to-[#6C8BFF] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#4C6EF5]/30">
-          <LibraryBig className="w-5 h-5 text-white" />
+          <LogoMark className="w-6 h-6" />
         </div>
         <div>
-          <p className="font-display font-700 text-[15px] text-white leading-none">BiblioSpace</p>
+          <p className="font-display font-700 text-[15px] text-white leading-none">Espacia</p>
           <p className="text-[11px] text-[#6C7693] mt-1">{ROLE_LABEL[session.role]}</p>
         </div>
       </div>

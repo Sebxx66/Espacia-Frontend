@@ -1,9 +1,9 @@
-// Cliente del backend de BiblioSpace (Spring Boot). Aquí se traducen los roles y
+// Cliente del backend de Espacia (Spring Boot). Aquí se traducen los roles y
 // estados del backend a los que usa la interfaz, para que las pantallas no dependan
 // de los nombres de la API.
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
-const SESSION_KEY = "bibliospace.session";
+const SESSION_KEY = "espacia.session";
 
 // Reglas de reserva (las mismas que valida el backend)
 export const RULES = {
