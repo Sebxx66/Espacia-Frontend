@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowLeft, CalendarCheck, Eye, EyeOff, Lock, Mail, ShieldCheck, Timer, UserPlus } from "lucide-react";
 import LogoMark from "../components/LogoMark";
+import PhoneQr from "../components/PhoneQr";
 import { forgotPassword, login, register, resetPassword, RULES, type Session } from "../api";
 import { Alert, Button, Field, Input } from "../components/ui";
 
@@ -143,7 +144,10 @@ export default function LoginScreen({ onLogin }: Props) {
           </ul>
         </div>
 
-        <p className="relative z-10 text-[#59617A] text-xs">Sistema de Gestión Bibliotecaria</p>
+        <div className="relative z-10 flex items-end justify-between gap-6">
+          <p className="text-[#59617A] text-xs">Sistema de Gestión Bibliotecaria</p>
+          <PhoneQr />
+        </div>
       </div>
 
       {/* Formulario */}

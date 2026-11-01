@@ -31,7 +31,21 @@ Necesita el backend de [Espacia-Backend](https://github.com/Sebxx66/Espacia-Back
 
 3. Abre la URL que muestra Vite (por defecto `http://localhost:8443`).
 
-Para usar otro backend, copia `.env.example` a `.env.local` y cambia `VITE_API_URL`.
+El frontend no llama al backend directamente: usa la ruta `/backend`, que el servidor de desarrollo reenvía a `http://localhost:8080`. Para apuntar a otro backend, copia `.env.example` a `.env.local` y define `BACKEND_URL`.
+
+### Abrir en el celular
+
+1. Conecta el celular a la misma red Wi-Fi que el PC.
+2. Abre la app en el PC (`http://localhost:8443`). En la pantalla de inicio, al pie del panel izquierdo, aparece la tarjeta **"Ábrelo en tu celular"** con un código QR.
+3. Escanéalo con la cámara del celular.
+
+El QR se genera en el navegador con la IP actual del PC y se actualiza solo si el PC cambia de red. Solo aparece cuando la app se abre en el propio PC (no en el celular) y en pantallas grandes.
+
+Si no carga en el celular:
+
+- **Firewall de Windows:** permite Node.js en redes privadas, y marca la red Wi-Fi como privada.
+- **iPhone con "Advertir sobre conexiones no seguras" activado:** Safari bloquea las páginas `http://`. Desactívalo en **Ajustes → Apps → Safari** mientras uses la app en la red local.
+- **Redes públicas o de universidades:** suelen aislar los dispositivos entre sí. Usa la red de casa o el hotspot del celular.
 
 ### Primer ingreso
 
@@ -72,7 +86,8 @@ Los tres roles pueden cambiar su contraseña desde el menú lateral.
 | `src/components/ui.tsx` | Botones, formularios, modales, toasts y estados de carga, error y vacío |
 | `src/components/AppShell.tsx` | Menú lateral (cajón en celular), cabecera y cambio de contraseña |
 | `src/components/staff.tsx` | Acciones sobre reservas e incidencias, compartidas por funcionario y administrador |
-| `src/lib/` | Formato de fechas y estados, exportación a CSV y el hook `useLoader` |
+| `src/components/PhoneQr.tsx` | Tarjeta con el QR para abrir la app en el celular |
+| `src/lib/` | Formato de fechas y estados, exportación a CSV, generador de códigos QR (`qr.ts`) y el hook `useLoader` |
 
 ## Scripts
 
@@ -81,6 +96,14 @@ Los tres roles pueden cambiar su contraseña desde el menú lateral.
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Compilación para producción en `dist/` |
 | `npx tsc --noEmit` | Verificación de tipos |
+
+## Versión compilada
+
+`npm run build` genera `dist/` sin el servidor de desarrollo, así que ahí no existe el reenvío de `/backend`. Define `VITE_API_URL` con la URL pública del backend antes de compilar y agrega el dominio del frontend en `CORS_ALLOWED_ORIGINS` del backend.
+
+## Historial de cambios
+
+Ver [CHANGELOG.md](CHANGELOG.md).
 
 ## Imágenes
 

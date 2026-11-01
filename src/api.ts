@@ -2,7 +2,9 @@
 // estados del backend a los que usa la interfaz, para que las pantallas no dependan
 // de los nombres de la API.
 
-const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
+// En desarrollo se usa /backend, que Vite reenvía al backend (ver vite.config.ts).
+// Para una versión compilada (npm run build), define VITE_API_URL con la URL pública del backend.
+const API_URL = (import.meta.env.VITE_API_URL ?? "/backend").replace(/\/$/, "");
 const SESSION_KEY = "espacia.session";
 
 // Reglas de reserva (las mismas que valida el backend)
