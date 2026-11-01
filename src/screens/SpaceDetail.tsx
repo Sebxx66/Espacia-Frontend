@@ -52,8 +52,15 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
       .catch((e) => setSlotsError(e instanceof Error ? e.message : "No se pudo cargar la disponibilidad."));
   }, [date, spaceId]);
 
+  // Reloj que avanza cada 30 segundos: si la pantalla queda abierta, las horas que van
+  // pasando se bloquean solas (el backend también rechaza reservas en horas ya pasadas)
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const blockState = useMemo(() => {
-    const now = new Date();
     return (h: number): "free" | "busy" | "past" => {
       if (!date) return "free";
       const blockStart = parseISODate(date);
@@ -63,7 +70,16 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
       const busy = (slots ?? []).some((s) => toMin(s.start) < (h + 1) * 60 && toMin(s.end) > h * 60);
       return busy ? "busy" : "free";
     };
-  }, [date, slots]);
+  }, [date, slots, now]);
+
+  // Si la hora elegida ya empezó mientras se elegía el horario, se descarta la selección
+  // (en el paso de confirmación, el backend responde con un mensaje claro)
+  useEffect(() => {
+    if (step === "time" && start !== null && blockState(start) === "past") {
+      setStart(null);
+      setEnd(null);
+    }
+  }, [blockState, start, step]);
 
   const pickBlock = (h: number) => {
     if (blockState(h) !== "free") return;

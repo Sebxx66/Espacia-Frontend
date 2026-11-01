@@ -2,6 +2,10 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.2.1 — Horas pasadas
+
+- **Las horas que van pasando se bloquean solas.** La pantalla de reserva ya deshabilitaba las horas de hoy que habían empezado, pero calculaba la hora solo al cargar. Ahora `SpaceDetail.tsx` tiene un reloj que se actualiza cada 30 segundos: si la pantalla queda abierta, cada bloque se bloquea al llegar su hora, y si el bloque elegido empieza mientras se elige el horario, se descarta la selección. El backend también rechaza estas reservas.
+
 ## 1.2.0 — Acceso desde el celular
 
 ### Añadido
