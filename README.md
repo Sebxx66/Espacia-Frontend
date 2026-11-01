@@ -5,6 +5,20 @@ React 19 · Vite · TypeScript · Tailwind CSS 4.
 
 Necesita el backend de [BiblioSpace-Backend](https://github.com/Sebxx66/BiblioSpace-Backend) funcionando (por defecto en `http://localhost:8080`).
 
+## Vista previa
+
+| Inicio de sesión | Catálogo de espacios |
+|---|---|
+| ![Inicio de sesión](docs/screenshots/01-login.jpg) | ![Catálogo de espacios](docs/screenshots/02-catalogo.jpg) |
+
+| Reservar un espacio | Mis reservas |
+|---|---|
+| ![Reservar un espacio](docs/screenshots/03-reserva.jpg) | ![Mis reservas](docs/screenshots/04-mis-reservas.jpg) |
+
+| Panel del administrador | Gestión de reservas |
+|---|---|
+| ![Panel del administrador](docs/screenshots/05-admin-dashboard.jpg) | ![Gestión de reservas](docs/screenshots/06-admin-reservas.jpg) |
+
 ## Puesta en marcha
 
 1. Levanta la base de datos y el backend (ver el README del backend).
