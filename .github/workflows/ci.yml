@@ -1,0 +1,24 @@
+# Verifica tipos y compilación en cada push y en cada pull request
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - name: Verificar tipos
+        run: npx tsc --noEmit
+      - name: Compilar
+        run: npm run build

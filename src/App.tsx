@@ -1,0 +1,96 @@
+import { useEffect, useState } from "react";
+import LoginScreen from "./screens/LoginScreen";
+import StudentDashboard, { type StudentTab } from "./screens/StudentDashboard";
+import AdminDashboard from "./screens/AdminDashboard";
+import SpaceDetail from "./screens/SpaceDetail";
+import FunctionalDashboard from "./screens/FunctionalDashboard";
+import { UiProvider } from "./components/ui";
+import { clearSession, loadSession, setUnauthorizedHandler, type Role, type Session } from "./api";
+
+export type { Role };
+export type Screen =
+  | "login"
+  | "student-home"
+  | "space-detail"
+  | "admin-dashboard"
+  | "staff-dashboard";
+
+export interface NavState {
+  screen: Screen;
+  spaceId?: string;
+  tab?: StudentTab;
+}
+
+const HOME: Record<Role, Screen> = {
+  student: "student-home",
+  admin: "admin-dashboard",
+  staff: "staff-dashboard",
+};
+
+export default function App() {
+  return (
+    <UiProvider>
+      <Router />
+    </UiProvider>
+  );
+}
+
+function Router() {
+  // Si hay un token guardado y vigente, se entra directo a la pantalla del rol
+  const [session, setSession] = useState<Session | null>(() => loadSession());
+  const [nav, setNav] = useState<NavState>(() => ({ screen: session ? HOME[session.role] : "login" }));
+
+  const navigate = (next: NavState) => {
+    setNav(next);
+    window.scrollTo(0, 0);
+  };
+
+  const logout = () => {
+    clearSession();
+    setSession(null);
+    navigate({ screen: "login" });
+  };
+
+  // Si el backend rechaza el token (expirado o inválido), volvemos al login
+  useEffect(() => {
+    setUnauthorizedHandler(logout);
+  }, []);
+
+  if (!session || nav.screen === "login") {
+    return <LoginScreen onLogin={(s) => {
+      setSession(s);
+      navigate({ screen: HOME[s.role] });
+    }} />;
+  }
+
+  // Funcionarios y administradores también pueden reservar desde el catálogo
+  if (nav.screen === "space-detail") {
+    return (
+      <SpaceDetail
+        session={session}
+        spaceId={nav.spaceId!}
+        onBack={() => navigate({ screen: "student-home", tab: "catalog" })}
+        onViewReservations={() => navigate({ screen: "student-home", tab: "reservations" })}
+      />
+    );
+  }
+
+  if (nav.screen === "student-home" || session.role === "student") {
+    return (
+      <StudentDashboard
+        key={nav.tab ?? "catalog"}
+        session={session}
+        initialTab={nav.tab}
+        onSpaceClick={(id) => navigate({ screen: "space-detail", spaceId: id })}
+        onBackToPanel={session.role !== "student" ? () => navigate({ screen: HOME[session.role] }) : undefined}
+        onLogout={logout}
+      />
+    );
+  }
+
+  if (session.role === "admin") {
+    return <AdminDashboard session={session} onLogout={logout} onOpenCatalog={() => navigate({ screen: "student-home", tab: "catalog" })} />;
+  }
+
+  return <FunctionalDashboard session={session} onLogout={logout} onOpenCatalog={() => navigate({ screen: "student-home", tab: "catalog" })} />;
+}

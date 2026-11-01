@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#202A6B"/><stop offset="1" stop-color="#0F1536"/></linearGradient>
+    <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B2A78"/><stop offset="1" stop-color="#3552C9"/></linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg)"/>
+  <rect y="300" width="600" height="100" fill="#0B1030"/>
+  <rect x="110" y="36" width="380" height="190" rx="10" fill="#0A0F2C"/>
+  <rect x="120" y="46" width="360" height="170" rx="6" fill="url(#scr)"/>
+  <g fill="#8EA4FF"><rect x="150" y="150" width="30" height="46" rx="3"/><rect x="195" y="124" width="30" height="72" rx="3" fill="#4C6EF5"/><rect x="240" y="100" width="30" height="96" rx="3" fill="#3DDBB0"/><rect x="285" y="132" width="30" height="64" rx="3" fill="#F5B84C"/></g>
+  <path d="M340 160l40-30 36 18 46-42" stroke="#FFF" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="340" cy="160" r="6" fill="#FFF"/><circle cx="380" cy="130" r="6" fill="#FFF"/><circle cx="416" cy="148" r="6" fill="#FFF"/><circle cx="462" cy="106" r="6" fill="#FFF"/>
+  <rect x="150" y="64" width="120" height="8" rx="4" fill="#CFD9FF"/><rect x="150" y="80" width="70" height="6" rx="3" fill="#8EA4FF"/>
+  <rect x="260" y="226" width="80" height="10" fill="#1B2764"/>
+  <g fill="#2D3C86"><rect x="70" y="230" width="52" height="86" rx="14"/><rect x="170" y="236" width="52" height="80" rx="14"/><rect x="378" y="236" width="52" height="80" rx="14"/><rect x="478" y="230" width="52" height="86" rx="14"/></g>
+  <path d="M50 296h500l-30 34H80z" fill="#55669E"/>
+  <rect x="50" y="288" width="500" height="14" rx="7" fill="#7084C8"/>
+  <rect x="270" y="326" width="60" height="48" rx="6" fill="#2A3680"/>
+  <g fill="#E9EDFB"><rect x="130" y="270" width="52" height="18" rx="3"/><rect x="418" y="270" width="52" height="18" rx="3"/></g>
+  <ellipse cx="300" cy="280" rx="26" ry="8" fill="#F5B84C"/><rect x="296" y="268" width="8" height="12" fill="#F5B84C"/>
+</svg>

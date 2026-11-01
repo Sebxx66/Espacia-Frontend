@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  --background: #0B0F1A;
+  --foreground: #F1F3F9;
+  --card: #141928;
+  --card-foreground: #E8EBF4;
+  --primary: #4C6EF5;
+  --primary-foreground: #ffffff;
+  --secondary: #1C2340;
+  --secondary-foreground: #A8B3CF;
+  --muted: #1A2035;
+  --muted-foreground: #6C7693;
+  --accent: #20C997;
+  --accent-foreground: #0B0F1A;
+  --border: #1E2A45;
+  --ring: #4C6EF5;
+  --radius: 10px;
+  color-scheme: dark;
+}
+
+html, body, #root {
+  min-height: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Barras de desplazamiento discretas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1E2A45 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #1E2A45;
+  border-radius: 8px;
+}
+
+.font-display {
+  font-family: 'Outfit', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Pesos de fuente usados en el diseño original (font-500, font-700...) */
+.font-300 { font-weight: 300; }
+.font-400 { font-weight: 400; }
+.font-500 { font-weight: 500; }
+.font-600 { font-weight: 600; }
+.font-700 { font-weight: 700; }
+.font-800 { font-weight: 800; }
+
+/* Animaciones de modales y toasts */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.animate-fade-in { animation: fade-in 0.15s ease-out; }
+.animate-pop-in { animation: pop-in 0.2s ease-out; }
+.animate-slide-up { animation: slide-up 0.2s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in, .animate-pop-in, .animate-slide-up { animation: none; }
+}
