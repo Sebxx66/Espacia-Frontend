@@ -2,6 +2,10 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.9.0 — Contraseñas más seguras
+
+- Los formularios de registro, cambio de contraseña y usuarios del administrador avisan que la contraseña no puede ser común ni incluir el nombre o el correo. El backend hace la revisión y su mensaje se muestra tal cual. (La versión 1.8.0 fue solo del backend: copias de seguridad.)
+
 ## 1.7.0 — Verificación del correo al registrarse
 
 - **Registro con confirmación por correo.** Al crear la cuenta ya no se entra directamente: aparece la pantalla "Revisa tu correo" con el correo usado, un botón para reenviar el enlace (con espera de 60 segundos entre envíos) y otro para volver al inicio de sesión.

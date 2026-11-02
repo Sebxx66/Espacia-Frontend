@@ -187,7 +187,7 @@ function ChangePasswordModal({ open, onClose }: { open: boolean; onClose: () => 
     <Modal
       open={open}
       title="Cambiar contraseña"
-      subtitle={`Mínimo ${RULES.minPassword} caracteres`}
+      subtitle={`Mínimo ${RULES.minPassword} caracteres. Evita contraseñas comunes o con tu nombre o correo.`}
       size="sm"
       onClose={close}
       footer={

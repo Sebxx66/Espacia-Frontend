@@ -334,7 +334,7 @@ export default function LoginScreen({ onLogin }: Props) {
                 {mode !== "forgot" && mode !== "resend" && (
                   <Field
                     label={mode === "reset" ? "Contraseña nueva" : "Contraseña"}
-                    hint={mode === "register" || mode === "reset" ? `Mínimo ${RULES.minPassword} caracteres.` : undefined}
+                    hint={mode === "register" || mode === "reset" ? `Mínimo ${RULES.minPassword} caracteres. Evita contraseñas comunes o con tu nombre o correo.` : undefined}
                   >
                     <div className="relative">
                       <Lock className="w-4 h-4 text-[#59617A] absolute left-3.5 top-1/2 -translate-y-1/2" />

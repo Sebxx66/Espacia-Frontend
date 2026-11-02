@@ -759,7 +759,7 @@ function NewUserModal({ open, onClose, onCreated }: { open: boolean; onClose: ()
       <div className="space-y-4">
         <Field label="Nombre completo"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
         <Field label="Email"><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
-        <Field label="Contraseña temporal" hint={`Mínimo ${RULES.minPassword} caracteres. Compártela con la persona para que la cambie al ingresar.`}>
+        <Field label="Contraseña temporal" hint={`Mínimo ${RULES.minPassword} caracteres, que no sea común ni incluya su nombre o correo. Compártela con la persona para que la cambie al ingresar.`}>
           <Input type="text" autoComplete="off" value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
         <Field label="Rol">
