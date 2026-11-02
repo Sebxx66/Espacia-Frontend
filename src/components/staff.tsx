@@ -4,7 +4,7 @@ import {
   checkInReservation, createIncident, finishReservation, getIncidents, getSpaces, rejectReservation, resolveIncident,
   type Incident, type Reservation,
 } from "../api";
-import { formatDate, timeAgo, todayISO } from "../lib/format";
+import { formatDate, reservationStart, timeAgo, todayISO } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
 import {
   Alert, Button, Card, cx, EmptyState, ErrorState, Field, Loading, Modal, Pill, ReservationBadge, SectionTitle, Select,
@@ -45,6 +45,8 @@ export function ReservationActions({ r, onDone, compact }: { r: Reservation; onD
   };
 
   const pending = r.status === "CONFIRMADA" || r.status === "PENDIENTE";
+  // "No se presentó" solo tiene sentido cuando la reserva ya empezó; antes es una anulación
+  const started = reservationStart(r).getTime() <= Date.now();
   return (
     <div className="flex flex-wrap gap-2">
       {pending && isToday && !r.expired && (
@@ -57,7 +59,7 @@ export function ReservationActions({ r, onDone, compact }: { r: Reservation; onD
       )}
       {pending && (
         <Button size={size} variant="danger" icon={<UserX className="w-3.5 h-3.5" />} loading={busy === "rej"} onClick={reject}>
-          {isToday && !r.expired ? "No se presentó" : r.expired ? "Cerrar como no asistida" : "Anular"}
+          {r.expired ? "Cerrar como no asistida" : isToday && started ? "No se presentó" : "Anular"}
         </Button>
       )}
     </div>

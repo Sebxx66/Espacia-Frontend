@@ -6,6 +6,7 @@ import SpaceDetail from "./screens/SpaceDetail";
 import FunctionalDashboard from "./screens/FunctionalDashboard";
 import { UiProvider } from "./components/ui";
 import { clearSession, loadSession, setUnauthorizedHandler, type Role, type Session } from "./api";
+import { clearPersisted, readPersisted, writePersisted } from "./lib/persist";
 
 export type { Role };
 export type Screen =
@@ -27,6 +28,22 @@ const HOME: Record<Role, Screen> = {
   staff: "staff-dashboard",
 };
 
+// Pantallas a las que puede volver cada rol al recargar la página
+const ALLOWED: Record<Role, Screen[]> = {
+  student: ["student-home", "space-detail"],
+  admin: ["admin-dashboard", "student-home", "space-detail"],
+  staff: ["staff-dashboard", "student-home", "space-detail"],
+};
+
+function restoreNav(session: Session | null): NavState {
+  if (!session) return { screen: "login" };
+  const saved = readPersisted<NavState>("screen");
+  if (saved && ALLOWED[session.role].includes(saved.screen) && (saved.screen !== "space-detail" || saved.spaceId)) {
+    return { screen: saved.screen, spaceId: saved.spaceId };
+  }
+  return { screen: HOME[session.role] };
+}
+
 export default function App() {
   return (
     <UiProvider>
@@ -38,15 +55,20 @@ export default function App() {
 function Router() {
   // Si hay un token guardado y vigente, se entra directo a la pantalla del rol
   const [session, setSession] = useState<Session | null>(() => loadSession());
-  const [nav, setNav] = useState<NavState>(() => ({ screen: session ? HOME[session.role] : "login" }));
+  // Al recargar se vuelve a la última pantalla abierta (si la sesión sigue vigente)
+  const [nav, setNav] = useState<NavState>(() => restoreNav(session));
 
   const navigate = (next: NavState) => {
+    // La pestaña del panel la guarda cada panel; aquí basta con la pantalla y el espacio abierto
+    if (next.tab) writePersisted("student-tab", next.tab);
+    writePersisted("screen", { screen: next.screen, spaceId: next.spaceId });
     setNav(next);
     window.scrollTo(0, 0);
   };
 
   const logout = () => {
     clearSession();
+    clearPersisted();
     setSession(null);
     navigate({ screen: "login" });
   };
@@ -58,6 +80,7 @@ function Router() {
 
   if (!session || nav.screen === "login") {
     return <LoginScreen onLogin={(s) => {
+      clearPersisted();
       setSession(s);
       navigate({ screen: HOME[s.role] });
     }} />;

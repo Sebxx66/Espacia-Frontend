@@ -14,8 +14,10 @@ import {
 } from "../api";
 import { canCancel, canExtend, durationHours, formatDate, formatDateLong, isActive, parseISODate, timeAgo } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
+import { usePersistedState } from "../lib/persist";
 
 export type StudentTab = "catalog" | "reservations" | "notifications";
+const STUDENT_TABS: readonly StudentTab[] = ["catalog", "reservations", "notifications"];
 
 interface Props {
   session: Session;
@@ -40,7 +42,7 @@ const TITLES: Record<StudentTab, string> = {
 };
 
 export default function StudentDashboard({ session, initialTab, onSpaceClick, onBackToPanel, onLogout }: Props) {
-  const [tab, setTab] = useState<StudentTab>(initialTab ?? "catalog");
+  const [tab, setTab] = usePersistedState<StudentTab>("student-tab", initialTab ?? "catalog", STUDENT_TABS);
   const [showBell, setShowBell] = useState(false);
 
   const reservations = useLoader(getMyReservations);

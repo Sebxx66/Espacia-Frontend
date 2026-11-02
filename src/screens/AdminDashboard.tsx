@@ -21,6 +21,7 @@ import {
 import { exportReservationsCsv } from "../lib/export";
 import { formatDate, timeAgo } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
+import { usePersistedState } from "../lib/persist";
 
 interface Props {
   session: Session;
@@ -29,6 +30,7 @@ interface Props {
 }
 
 type Tab = "overview" | "spaces" | "reservations" | "users" | "support" | "types";
+const TABS: readonly Tab[] = ["overview", "spaces", "reservations", "users", "support", "types"];
 
 const TITLES: Record<Tab, string> = {
   overview: "Dashboard",
@@ -40,7 +42,7 @@ const TITLES: Record<Tab, string> = {
 };
 
 export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Props) {
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = usePersistedState<Tab>("admin-tab", "overview", TABS);
   const [spaceForm, setSpaceForm] = useState<{ space?: Space; type?: string } | null>(null);
   const [typeFilter, setTypeFilter] = useState("");
   const spaces = useLoader(getSpaces);

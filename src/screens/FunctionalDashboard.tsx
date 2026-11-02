@@ -7,6 +7,7 @@ import { Button, Card, EmptyState, ErrorState, Loading, Pill, ReservationBadge, 
 import { getReservations, getSpaces, type Reservation, type Session, type Space } from "../api";
 import { formatDate, todayISO } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
+import { usePersistedState } from "../lib/persist";
 
 interface Props {
   session: Session;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 type Tab = "checkins" | "inuse" | "monitor" | "today" | "support";
+const TABS: readonly Tab[] = ["checkins", "inuse", "monitor", "today", "support"];
 
 const TITLES: Record<Tab, string> = {
   checkins: "Llegadas de hoy",
@@ -25,7 +27,7 @@ const TITLES: Record<Tab, string> = {
 };
 
 export default function FunctionalDashboard({ session, onLogout, onOpenCatalog }: Props) {
-  const [tab, setTab] = useState<Tab>("checkins");
+  const [tab, setTab] = usePersistedState<Tab>("staff-tab", "checkins", TABS);
   const today = useLoader(() => getReservations({ date: todayISO() }));
   const inUse = useLoader(() => getReservations({ status: "EN_USO" }));
   const spaces = useLoader(getSpaces);

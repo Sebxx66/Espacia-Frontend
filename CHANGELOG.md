@@ -2,6 +2,12 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.3.0 — Recargar sin perder la pantalla
+
+- **Recargar la página ya no devuelve a la pantalla principal.** La navegación era solo estado en memoria, así que al recargar (F5) se perdía. `src/lib/persist.ts` guarda en `sessionStorage` la pantalla abierta, el espacio que se está viendo y la pestaña de cada panel (estudiante, funcionario y administrador). Al recargar, `App.tsx` restaura esa pantalla si la sesión sigue vigente y el rol puede verla; al cerrar o iniciar sesión se borra.
+- **Cambio de contraseña.** El backend ahora cierra las demás sesiones al cambiar la contraseña y devuelve un token nuevo; `changePassword` lo guarda para seguir conectado en este dispositivo.
+- **"No se presentó" solo cuando corresponde.** El botón aparecía todo el día de la reserva, incluso horas antes de que empezara. Ahora antes de la hora de inicio dice "Anular", desde el inicio "No se presentó" y, si el horario ya terminó, "Cerrar como no asistida".
+
 ## 1.2.1 — Horas pasadas
 
 - **Las horas que van pasando se bloquean solas.** La pantalla de reserva ya deshabilitaba las horas de hoy que habían empezado, pero calculaba la hora solo al cargar. Ahora `SpaceDetail.tsx` tiene un reloj que se actualiza cada 30 segundos: si la pantalla queda abierta, cada bloque se bloquea al llegar su hora, y si el bloque elegido empieza mientras se elige el horario, se descarta la selección. El backend también rechaza estas reservas.

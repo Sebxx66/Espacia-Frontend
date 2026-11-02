@@ -484,8 +484,11 @@ export function resetPassword(token: string, password: string) {
   return request<void>("/api/v1/auth/reset-password", json("POST", { token, password }), false);
 }
 
-export function changePassword(current: string, next: string) {
-  return request<void>("/api/v1/auth/password", json("PATCH", { actual: current, nueva: next }));
+// El backend cierra las demás sesiones del usuario y devuelve un token nuevo para este dispositivo
+export async function changePassword(current: string, next: string) {
+  const res = await request<{ token?: string } | null>("/api/v1/auth/password", json("PATCH", { actual: current, nueva: next }));
+  const session = loadSession();
+  if (res?.token && session) saveSession({ ...session, token: res.token });
 }
 
 // --- Espacios --------------------------------------------------------------
