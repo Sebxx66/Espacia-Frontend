@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
   const backendUrl = env.BACKEND_URL || 'http://localhost:8080'
 
   return {
-    plugins: [react(), tailwindcss(), lanIp()],
+    plugins: [react(), tailwindcss(), lanIp(), politicaDeSeguridad(env.VITE_API_URL)],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -72,5 +72,41 @@ function lanIp(): Plugin {
         res.end(JSON.stringify({ ip: current(), port: server.config.server.port }))
       })
     },
+  }
+}
+
+/**
+ * Política de seguridad de contenido (CSP) para la versión compilada. Le dice al navegador de dónde puede
+ * cargar scripts, estilos, imágenes y a qué servidores puede conectarse: si alguien lograra inyectar un
+ * script, el navegador no lo ejecutaría ni le dejaría enviar la sesión a otro sitio. Se agrega como
+ * etiqueta <meta> al compilar (npm run build) e incluye la dirección del backend de VITE_API_URL.
+ * Los únicos orígenes externos son Google Fonts (tipografías) y Unsplash (fotos de ejemplo).
+ * calendar.google.com no se carga: es un enlace normal que se abre en otra pestaña.
+ */
+function politicaDeSeguridad(apiUrl: string | undefined): Plugin {
+  let origenApi = ''
+  try {
+    if (apiUrl) origenApi = new URL(apiUrl).origin
+  } catch {
+    // VITE_API_URL inválida: solo se permite el mismo origen
+  }
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self'",
+    // React aplica estilos en línea (atributo style), por eso 'unsafe-inline' solo en estilos
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: blob: https://images.unsplash.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    `connect-src 'self'${origenApi ? ` ${origenApi}` : ''}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ')
+  return {
+    name: 'politica-de-seguridad',
+    apply: 'build',
+    transformIndexHtml: () => [
+      { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: csp }, injectTo: 'head-prepend' },
+    ],
   }
 }

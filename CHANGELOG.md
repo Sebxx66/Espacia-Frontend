@@ -2,6 +2,12 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.12.0 — Auditoría y política de seguridad
+
+- **Pestaña Auditoría** en el panel del administrador: tabla con fecha, usuario (correo, rol e IP), acción y detalle de los cambios hechos desde el panel, del más reciente al más antiguo. Busca por usuario, acción o detalle (espera a que se deje de escribir) y carga de 50 en 50 con "Ver más". Cada acción tiene su etiqueta y color (por ejemplo, "Cuenta suspendida" en rojo).
+- **Política de seguridad de contenido (CSP).** Al compilar (`npm run build`) se agrega al HTML una etiqueta que le dice al navegador de dónde puede cargar cada cosa: scripts solo del propio sitio, estilos y tipografías del sitio y de Google Fonts, imágenes del sitio y de Unsplash, y conexiones solo al sitio y al backend de `VITE_API_URL`. Si alguien lograra inyectar un script, el navegador no lo ejecutaría ni le dejaría enviar la sesión a otro servidor. Está en `vite.config.ts` (`politicaDeSeguridad`) y no afecta `npm run dev`.
+- **Cabeceras del sitio en Render** (impedir que la página se muestre dentro de otra, HSTS, `nosniff`, `Referrer-Policy` y `Permissions-Policy`): el README explica cómo agregarlas en *Settings → Headers*; el `render.yaml` del backend ya las trae.
+
 ## 1.11.0 — Publicada en Render
 
 - Espacia está en línea en [espacia.onrender.com](https://espacia.onrender.com). El frontend se publica como Static Site de Render: `npm ci && npm run build`, carpeta `dist` y `VITE_API_URL` apuntando al backend. El README tiene la demo al inicio y la configuración del sitio. Sin cambios en el código de la aplicación. (La versión 1.10.0 fue solo del backend.)

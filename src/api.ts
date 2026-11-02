@@ -732,6 +732,41 @@ export function resetUserPassword(id: number, password: string) {
   return request<void>(`/api/v1/users/${id}/password`, json("PATCH", { password }));
 }
 
+// --- Registro de auditoría (administrador) ---------------------------------
+
+export interface AuditEntry {
+  id: number;
+  date: string;
+  userName: string;
+  userEmail: string | null;
+  userRole: string | null;
+  action: string;
+  detail: string;
+  ip: string | null;
+}
+
+interface AuditResponse {
+  items: { id: number; fecha: string; usuarioNombre: string; usuarioEmail: string | null; usuarioRol: string | null; accion: string; detalle: string; ip: string | null }[];
+  total: number;
+  pagina: number;
+  hayMas: boolean;
+}
+
+// Quién hizo qué en el panel, del más reciente al más antiguo. "query" busca en usuario, acción y detalle.
+export async function getAudit(query: string, page: number): Promise<{ items: AuditEntry[]; total: number; hasMore: boolean }> {
+  const params = new URLSearchParams({ pagina: String(page), tamano: "50" });
+  if (query.trim()) params.set("q", query.trim());
+  const r = await request<AuditResponse>(`/api/v1/admin/audit?${params}`);
+  return {
+    items: r.items.map((a) => ({
+      id: a.id, date: a.fecha, userName: a.usuarioNombre, userEmail: a.usuarioEmail,
+      userRole: a.usuarioRol, action: a.accion, detail: a.detalle, ip: a.ip,
+    })),
+    total: r.total,
+    hasMore: r.hayMas,
+  };
+}
+
 // --- Incidencias (funcionario y administrador) ----------------------------
 
 export async function getIncidents(): Promise<Incident[]> {

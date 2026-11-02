@@ -76,6 +76,7 @@ Con `npm run dev`, la pantalla de inicio muestra atajos de **accesos de demostra
 **Administrador**
 - Dashboard con estadísticas reales.
 - **Configuración** de las reglas de reserva: horario, duración máxima, reservas activas, límites por día, cancelación, minutos para liberar una no asistida y días de anticipación. Se aplican de inmediato en toda la aplicación.
+- **Auditoría:** historial de quién cambió reglas, cuentas, espacios, anulaciones e incidencias, con fecha e IP, y buscador.
 - Gestión de espacios, reservas, usuarios (roles, suspensión, restablecer contraseña), incidencias y tipos de espacio.
 - Exportación de las reservas filtradas a un archivo que abre Excel.
 
@@ -123,6 +124,19 @@ Variables de entorno (se usan al compilar):
 | `VITE_API_URL` | Dirección pública del backend, ej. `https://espacia-backend.onrender.com` |
 | `NODE_VERSION` | `22` |
 | `VITE_INSTITUTION_NAME`, `VITE_PRIVACY_EMAIL`, `VITE_LEGAL_CITY` | Datos de la institución para la Política de privacidad y los Términos |
+
+En *Settings → Headers* agrega estas cabeceras con *Path* `/*` (protegen contra que la página se muestre dentro de otra y otros ataques del navegador):
+
+| Name | Value |
+|---|---|
+| `X-Frame-Options` | `DENY` |
+| `Content-Security-Policy` | `frame-ancestors 'none'` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=()` |
+| `Strict-Transport-Security` | `max-age=31536000` |
+
+El resto de la política de seguridad (de dónde se pueden cargar scripts, estilos, imágenes y conexiones) va dentro del HTML: `npm run build` la agrega con la dirección de `VITE_API_URL`. Si agregas un servicio externo nuevo (otra fuente de imágenes, analítica...), súmalo en `politicaDeSeguridad` de `vite.config.ts` o el navegador lo bloqueará.
 
 Después pon la dirección del sitio (ej. `https://espacia.onrender.com`) en `FRONTEND_URL` y `CORS_ALLOWED_ORIGINS` del backend.
 La guía completa (base de datos, backend, correo con Brevo y el `render.yaml` que crea todo de una vez) está en el README del backend.
