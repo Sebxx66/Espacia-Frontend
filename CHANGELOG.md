@@ -2,6 +2,11 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.13.0 — Vista previa al compartir el enlace
+
+- Al pegar el enlace de Espacia en WhatsApp, LinkedIn, Teams, Facebook o X aparece una tarjeta con imagen, título y descripción en vez del enlace solo. La imagen (`public/vista-previa.jpg`, 1200×630, 100 KB) muestra el logo, el mensaje principal y el catálogo en el computador y en el celular. Las etiquetas Open Graph y de tarjeta grande se agregan al compilar desde `vite.config.ts` (`vistaPrevia`); como las redes piden la dirección completa de la imagen, se arma con `VITE_SITE_URL` (por defecto `https://espacia.onrender.com`). También se agrega la dirección canónica del sitio.
+- La integración continua revisa que la página compilada tenga la vista previa y la política de seguridad.
+
 ## 1.12.0 — Auditoría y política de seguridad
 
 - **Pestaña Auditoría** en el panel del administrador: tabla con fecha, usuario (correo, rol e IP), acción y detalle de los cambios hechos desde el panel, del más reciente al más antiguo. Busca por usuario, acción o detalle (espera a que se deje de escribir) y carga de 50 en 50 con "Ver más". Cada acción tiene su etiqueta y color (por ejemplo, "Cuenta suspendida" en rojo).

@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
   const backendUrl = env.BACKEND_URL || 'http://localhost:8080'
 
   return {
-    plugins: [react(), tailwindcss(), lanIp(), politicaDeSeguridad(env.VITE_API_URL)],
+    plugins: [react(), tailwindcss(), lanIp(), politicaDeSeguridad(env.VITE_API_URL), vistaPrevia(env.VITE_SITE_URL)],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -107,6 +107,42 @@ function politicaDeSeguridad(apiUrl: string | undefined): Plugin {
     apply: 'build',
     transformIndexHtml: () => [
       { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: csp }, injectTo: 'head-prepend' },
+    ],
+  }
+}
+
+/**
+ * Vista previa al compartir el enlace (WhatsApp, LinkedIn, Teams, Facebook, X...): etiquetas Open Graph y de
+ * tarjeta grande con título, descripción e imagen (public/vista-previa.jpg, 1200×630). Las redes exigen la
+ * dirección completa de la imagen, por eso se arma con VITE_SITE_URL (por defecto, la demo publicada).
+ */
+function vistaPrevia(siteUrl: string | undefined): Plugin {
+  const sitio = (siteUrl || 'https://espacia.onrender.com').replace(/\/+$/, '')
+  const titulo = 'Espacia · Reserva de espacios de la biblioteca'
+  const descripcion =
+    'Reserva en línea salas de estudio, equipos y talleres: disponibilidad en tiempo real, confirmación por correo y panel de administración.'
+  const imagen = `${sitio}/vista-previa.jpg`
+  const meta = (attrs: Record<string, string>) => ({ tag: 'meta', attrs, injectTo: 'head' as const })
+  return {
+    name: 'vista-previa',
+    transformIndexHtml: () => [
+      { tag: 'link', attrs: { rel: 'canonical', href: `${sitio}/` }, injectTo: 'head' },
+      meta({ property: 'og:type', content: 'website' }),
+      meta({ property: 'og:site_name', content: 'Espacia' }),
+      meta({ property: 'og:locale', content: 'es_CO' }),
+      meta({ property: 'og:url', content: `${sitio}/` }),
+      meta({ property: 'og:title', content: titulo }),
+      meta({ property: 'og:description', content: descripcion }),
+      meta({ property: 'og:image', content: imagen }),
+      meta({ property: 'og:image:secure_url', content: imagen }),
+      meta({ property: 'og:image:type', content: 'image/jpeg' }),
+      meta({ property: 'og:image:width', content: '1200' }),
+      meta({ property: 'og:image:height', content: '630' }),
+      meta({ property: 'og:image:alt', content: 'Espacia: catálogo de espacios en el computador y en el celular' }),
+      meta({ name: 'twitter:card', content: 'summary_large_image' }),
+      meta({ name: 'twitter:title', content: titulo }),
+      meta({ name: 'twitter:description', content: descripcion }),
+      meta({ name: 'twitter:image', content: imagen }),
     ],
   }
 }

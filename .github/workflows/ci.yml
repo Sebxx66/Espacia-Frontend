@@ -22,3 +22,13 @@ jobs:
         run: npx tsc --noEmit
       - name: Compilar
         run: npm run build
+        env:
+          VITE_API_URL: https://espacia-backend.onrender.com
+      - name: Revisar la página compilada
+        run: |
+          # La vista previa al compartir y la política de seguridad deben quedar en el HTML
+          grep -q 'property="og:image" content="https://espacia.onrender.com/vista-previa.jpg"' dist/index.html
+          grep -q 'name="twitter:card" content="summary_large_image"' dist/index.html
+          grep -q 'http-equiv="Content-Security-Policy"' dist/index.html
+          grep -q "connect-src 'self' https://espacia-backend.onrender.com" dist/index.html
+          test -f dist/vista-previa.jpg

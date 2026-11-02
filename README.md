@@ -124,6 +124,7 @@ Variables de entorno (se usan al compilar):
 | `VITE_API_URL` | Dirección pública del backend, ej. `https://espacia-backend.onrender.com` |
 | `NODE_VERSION` | `22` |
 | `VITE_INSTITUTION_NAME`, `VITE_PRIVACY_EMAIL`, `VITE_LEGAL_CITY` | Datos de la institución para la Política de privacidad y los Términos |
+| `VITE_SITE_URL` | Dirección pública del sitio, para la imagen de la vista previa al compartir el enlace (por defecto `https://espacia.onrender.com`). Cámbiala si usas un dominio propio |
 
 En *Settings → Headers* agrega estas cabeceras con *Path* `/*` (protegen contra que la página se muestre dentro de otra y otros ataques del navegador):
 
