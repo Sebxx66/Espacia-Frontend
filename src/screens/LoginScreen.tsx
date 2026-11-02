@@ -1,8 +1,11 @@
-import { useState, type FormEvent } from "react";
-import { ArrowLeft, CalendarCheck, Eye, EyeOff, Lock, Mail, ShieldCheck, Timer, UserPlus } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
+import { ArrowLeft, BadgeCheck, CalendarCheck, Eye, EyeOff, Lock, Mail, MailCheck, RefreshCw, ShieldCheck, Timer, UserPlus } from "lucide-react";
 import LogoMark from "../components/LogoMark";
 import PhoneQr from "../components/PhoneQr";
-import { forgotPassword, login, register, resetPassword, RULES, type Session } from "../api";
+import {
+  ApiError, checkVerification, EMAIL_NOT_VERIFIED, forgotPassword, isInstitutionalEmail, login, register,
+  resendVerification, resetPassword, RULES, verifyEmail, type Session,
+} from "../api";
 import { Alert, Button, Field, Input } from "../components/ui";
 import { LEGAL } from "../legal/config";
 import { plural, scheduleText } from "../lib/format";
@@ -11,7 +14,10 @@ interface Props {
   onLogin: (session: Session) => void;
 }
 
-type Mode = "login" | "register" | "forgot" | "reset";
+type Mode = "login" | "register" | "forgot" | "reset" | "verify" | "resend";
+
+// Segundos de espera entre un reenvío del enlace de confirmación y el siguiente
+const RESEND_WAIT = 60;
 
 const DEMO_ACCOUNTS = [
   { label: "Estudiante", email: "estudiante@bibliospace.local", password: "Demo12345" },
@@ -24,7 +30,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function LoginScreen({ onLogin }: Props) {
   // El enlace del correo de recuperación trae el token en la dirección: /?reset=TOKEN
   const [resetToken] = useState(() => new URLSearchParams(window.location.search).get("reset") ?? "");
-  const [mode, setMode] = useState<Mode>(resetToken ? "reset" : "login");
+  // El enlace del correo de confirmación trae el token así: /?verificar=TOKEN
+  const [verifyToken] = useState(() => new URLSearchParams(window.location.search).get("verificar") ?? "");
+  const [mode, setMode] = useState<Mode>(verifyToken ? "verify" : resetToken ? "reset" : "login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,22 +43,61 @@ export default function LoginScreen({ onLogin }: Props) {
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  // Correo al que se envió el enlace de confirmación (muestra la pantalla "Revisa tu correo")
+  const [verificationSent, setVerificationSent] = useState<string | null>(null);
+  // El login respondió que la cuenta aún no confirma su correo
+  const [unverified, setUnverified] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
+  const [verifyInfo, setVerifyInfo] = useState<{ email: string; nombre: string } | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
+  // Al abrir el enlace se revisa de una vez si sigue vigente
+  useEffect(() => {
+    if (!verifyToken) return;
+    checkVerification(verifyToken)
+      .then(setVerifyInfo)
+      .catch((e) => setVerifyError(e instanceof Error ? e.message : "El enlace no es válido o ya venció."));
+  }, [verifyToken]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = window.setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => window.clearTimeout(t);
+  }, [cooldown]);
+
+  const resend = async (to: string) => {
+    setResending(true);
+    setError(null);
+    try {
+      await resendVerification(to);
+      setUnverified(null);
+      setVerificationSent(to);
+      setCooldown(RESEND_WAIT);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo enviar el enlace.");
+    } finally {
+      setResending(false);
+    }
+  };
 
   const switchMode = (next: Mode) => {
     setMode(next);
     setError(null);
     setNotice(null);
     setSent(false);
+    setVerificationSent(null);
+    setUnverified(null);
     setPassword("");
     setRepeat("");
-    // Al salir de la pantalla de contraseña nueva se quita el token de la dirección
-    if (window.location.search.includes("reset=")) window.history.replaceState({}, "", window.location.pathname);
+    // Al salir de la pantalla del enlace se quita el token de la dirección
+    if (/[?&](reset|verificar)=/.test(window.location.search)) window.history.replaceState({}, "", window.location.pathname);
   };
 
   const validate = (): string | null => {
     if (mode === "register" && !name.trim()) return "Escribe tu nombre completo.";
-    if (mode !== "reset" && !EMAIL_RE.test(email.trim())) return "Escribe un email válido.";
-    if (mode === "forgot") return null;
+    if (mode !== "reset" && mode !== "verify" && !EMAIL_RE.test(email.trim())) return "Escribe un email válido.";
+    if (mode === "forgot" || mode === "resend") return null;
     if (!password) return mode === "reset" ? "Escribe tu contraseña nueva." : "Escribe tu contraseña.";
     if (mode === "register" || mode === "reset") {
       if (password.length < RULES.minPassword) return `La contraseña debe tener al menos ${RULES.minPassword} caracteres.`;
@@ -69,7 +116,28 @@ export default function LoginScreen({ onLogin }: Props) {
     if (problem) return setError(problem);
     setLoading(true);
     setError(null);
+    setUnverified(null);
     try {
+      if (mode === "resend") {
+        await resend(email.trim());
+        setLoading(false);
+        return;
+      }
+      if (mode === "verify") {
+        const session = await verifyEmail(verifyToken, password);
+        window.history.replaceState({}, "", window.location.pathname);
+        onLogin(session);
+        return;
+      }
+      if (mode === "register") {
+        await register(name.trim(), email.trim(), password, LEGAL.version);
+        setPassword("");
+        setRepeat("");
+        setVerificationSent(email.trim());
+        setCooldown(RESEND_WAIT);
+        setLoading(false);
+        return;
+      }
       if (mode === "forgot") {
         await forgotPassword(email.trim());
         setSent(true);
@@ -83,11 +151,9 @@ export default function LoginScreen({ onLogin }: Props) {
         setLoading(false);
         return;
       }
-      const session = mode === "register"
-        ? await register(name.trim(), email.trim(), password, LEGAL.version)
-        : await login(email.trim(), password);
-      onLogin(session);
+      onLogin(await login(email.trim(), password));
     } catch (err) {
+      if (err instanceof ApiError && err.code === EMAIL_NOT_VERIFIED) setUnverified(email.trim());
       setError(err instanceof Error ? err.message : "No se pudo completar la acción.");
       setLoading(false);
     }
@@ -166,13 +232,46 @@ export default function LoginScreen({ onLogin }: Props) {
             <span className="font-display font-700 text-white text-lg">Espacia</span>
           </div>
 
-          {(mode === "forgot" || mode === "reset") && (
+          {(mode !== "login" && mode !== "register") && !verificationSent && (
             <button onClick={() => switchMode("login")} className="flex items-center gap-2 text-[#8A93AD] hover:text-white text-sm mb-8 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Volver
             </button>
           )}
 
-          {mode === "forgot" && sent ? (
+          {verificationSent ? (
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-[#20C997]/12 text-[#38D9A9] flex items-center justify-center mb-5">
+                <MailCheck className="w-6 h-6" />
+              </div>
+              <h2 className="font-display text-3xl font-700 text-white mb-2">Revisa tu correo</h2>
+              <p className="text-[#8A93AD] text-sm mb-6 leading-relaxed">
+                Te enviamos un enlace a <span className="text-white break-all">{verificationSent}</span> para confirmar que es tuyo.
+                Ábrelo y escribe la contraseña que elegiste para activar tu cuenta. Vence en 24 horas.
+              </p>
+              <Alert tone="info">
+                ¿No llega? Revisa la carpeta de spam o promociones. Si escribiste mal el correo, vuelve y regístrate de nuevo.
+              </Alert>
+              {error && <div className="mt-4"><Alert>{error}</Alert></div>}
+              <Button
+                variant="secondary"
+                className="w-full mt-6"
+                size="lg"
+                icon={<RefreshCw className="w-4 h-4" />}
+                loading={resending}
+                disabled={cooldown > 0}
+                onClick={() => resend(verificationSent)}
+              >
+                {cooldown > 0 ? `Reenviar enlace (${cooldown} s)` : "Reenviar enlace"}
+              </Button>
+              <Button className="w-full mt-3" size="lg" onClick={() => switchMode("login")}>Volver a iniciar sesión</Button>
+            </div>
+          ) : mode === "verify" && verifyError ? (
+            <div>
+              <h2 className="font-display text-3xl font-700 text-white mb-2">Enlace vencido</h2>
+              <p className="text-[#8A93AD] text-sm mb-6 leading-relaxed">{verifyError}</p>
+              <Button className="w-full" size="lg" onClick={() => switchMode("resend")}>Pedir un enlace nuevo</Button>
+            </div>
+          ) : mode === "forgot" && sent ? (
             <div>
               <h2 className="font-display text-3xl font-700 text-white mb-2">Revisa tu correo</h2>
               <p className="text-[#8A93AD] text-sm mb-6 leading-relaxed">
@@ -188,7 +287,7 @@ export default function LoginScreen({ onLogin }: Props) {
           ) : (
             <form onSubmit={submit} noValidate>
               <h2 className="font-display text-3xl font-700 text-white mb-2">
-                {{ login: "Iniciar sesión", register: "Crear cuenta", forgot: "Recuperar acceso", reset: "Nueva contraseña" }[mode]}
+                {{ login: "Iniciar sesión", register: "Crear cuenta", forgot: "Recuperar acceso", reset: "Nueva contraseña", verify: "Confirma tu correo", resend: "Confirmar correo" }[mode]}
               </h2>
               <p className="text-[#8A93AD] text-sm mb-8">
                 {{
@@ -196,6 +295,10 @@ export default function LoginScreen({ onLogin }: Props) {
                   register: "Regístrate para reservar espacios y equipos.",
                   forgot: "Escribe tu email y te enviaremos un enlace para crear una contraseña nueva.",
                   reset: "Elige la contraseña nueva para tu cuenta.",
+                  verify: verifyInfo
+                    ? `Hola, ${verifyInfo.nombre}. Escribe la contraseña que elegiste al registrarte para activar ${verifyInfo.email}.`
+                    : "Comprobando el enlace...",
+                  resend: "Escribe el correo con el que te registraste y te enviaremos un enlace nuevo para activar tu cuenta.",
                 }[mode]}
               </p>
 
@@ -207,8 +310,13 @@ export default function LoginScreen({ onLogin }: Props) {
                     <Input autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: María García" autoFocus />
                   </Field>
                 )}
-                {mode !== "reset" && (
-                  <Field label="Email">
+                {mode !== "reset" && mode !== "verify" && (
+                  <Field
+                    label="Email"
+                    hint={mode === "register" && isInstitutionalEmail(email) ? (
+                      <span className="inline-flex items-center gap-1 text-[#38D9A9]"><BadgeCheck className="w-3.5 h-3.5" /> Correo institucional</span>
+                    ) : undefined}
+                  >
                     <div className="relative">
                       <Mail className="w-4 h-4 text-[#59617A] absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <Input
@@ -218,12 +326,12 @@ export default function LoginScreen({ onLogin }: Props) {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="usuario@universidad.edu"
-                        autoFocus={mode === "login" || mode === "forgot"}
+                        autoFocus={mode === "login" || mode === "forgot" || mode === "resend"}
                       />
                     </div>
                   </Field>
                 )}
-                {mode !== "forgot" && (
+                {mode !== "forgot" && mode !== "resend" && (
                   <Field
                     label={mode === "reset" ? "Contraseña nueva" : "Contraseña"}
                     hint={mode === "register" || mode === "reset" ? `Mínimo ${RULES.minPassword} caracteres.` : undefined}
@@ -232,12 +340,12 @@ export default function LoginScreen({ onLogin }: Props) {
                       <Lock className="w-4 h-4 text-[#59617A] absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <Input
                         type={showPassword ? "text" : "password"}
-                        autoComplete={mode === "login" ? "current-password" : "new-password"}
+                        autoComplete={mode === "login" || mode === "verify" ? "current-password" : "new-password"}
                         className="pl-10 pr-10"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        autoFocus={mode === "reset"}
+                        autoFocus={mode === "reset" || mode === "verify"}
                       />
                       {passwordToggle}
                     </div>
@@ -293,17 +401,29 @@ export default function LoginScreen({ onLogin }: Props) {
               )}
 
               {error && <div className="mt-5"><Alert>{error}</Alert></div>}
+              {unverified && mode === "login" && (
+                <Button
+                  variant="secondary"
+                  className="w-full mt-3"
+                  icon={<RefreshCw className="w-4 h-4" />}
+                  loading={resending}
+                  onClick={() => resend(unverified)}
+                >
+                  Reenviar enlace de confirmación
+                </Button>
+              )}
 
               <Button
                 type="submit"
                 size="lg"
                 className="w-full mt-6"
                 loading={loading}
+                disabled={mode === "verify" && !verifyInfo}
                 icon={mode === "register" ? <UserPlus className="w-4 h-4" /> : undefined}
               >
                 {loading
-                  ? { login: "Verificando...", register: "Creando cuenta...", forgot: "Enviando...", reset: "Guardando..." }[mode]
-                  : { login: "Ingresar", register: "Crear cuenta", forgot: "Enviar enlace", reset: "Cambiar contraseña" }[mode]}
+                  ? { login: "Verificando...", register: "Creando cuenta...", forgot: "Enviando...", reset: "Guardando...", verify: "Activando...", resend: "Enviando..." }[mode]
+                  : { login: "Ingresar", register: "Crear cuenta", forgot: "Enviar enlace", reset: "Cambiar contraseña", verify: "Activar mi cuenta", resend: "Enviar enlace" }[mode]}
               </Button>
 
               {/* Solo en modo desarrollo (npm run dev): atajos para la demostración */}

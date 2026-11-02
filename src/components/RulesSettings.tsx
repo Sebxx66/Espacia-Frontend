@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
-import { CalendarClock, Clock, Hourglass, RotateCcw, Save, UserX } from "lucide-react";
+import { AtSign, CalendarClock, Clock, Hourglass, RotateCcw, Save, UserX } from "lucide-react";
 import { DEFAULT_RULES, getRules, saveRules, type RulesForm } from "../api";
 import { plural } from "../lib/format";
 import { Alert, Button, Card, ErrorState, Field, Input, Loading, Select, useUi } from "./ui";
 
 // Configuración de las reglas de reserva (solo administradores). Se aplican de inmediato a las nuevas reservas.
 
-type NumberKey = keyof RulesForm;
+type NumberKey = Exclude<keyof RulesForm, "institutionalDomains">;
 
 const HOURS = Array.from({ length: 24 }, (_, h) => h);
 const hourLabel = (h: number) => `${String(h).padStart(2, "0")}:00`;
@@ -32,7 +32,7 @@ export default function RulesSettings() {
   };
   useEffect(load, []);
 
-  const dirty = useMemo(() => !!form && !!saved && (Object.keys(form) as NumberKey[]).some((k) => form[k] !== saved[k]), [form, saved]);
+  const dirty = useMemo(() => !!form && !!saved && (Object.keys(form) as (keyof RulesForm)[]).some((k) => form[k] !== saved[k]), [form, saved]);
 
   if (loadError) return <ErrorState message={loadError} onRetry={load} />;
   if (!form) return <Loading label="Cargando reglas..." />;
@@ -50,7 +50,7 @@ export default function RulesSettings() {
   const openHours = form.closeHour - form.openHour;
 
   const validate = (): string | null => {
-    if ((Object.values(form) as number[]).some((v) => Number.isNaN(v))) return "Completa todos los campos.";
+    if (Object.values(form).some((v) => typeof v === "number" && Number.isNaN(v))) return "Completa todos los campos.";
     if (form.closeHour <= form.openHour) return "La hora de cierre debe ser posterior a la hora de apertura.";
     if (form.maxHours > openHours) return `La duración máxima no puede superar las horas de apertura (${openHours} h).`;
     if (form.maxEquipmentPerDay === 0 && form.maxRoomsPerDay === 0) return "Debe permitirse reservar al menos un equipo o una sala por día.";
@@ -152,6 +152,20 @@ export default function RulesSettings() {
             </Field>
           </div>
         </Section>
+
+        <div className="md:col-span-2">
+          <Section icon={<AtSign className="w-4 h-4" />} title="Correos institucionales" text="Dominios de correo de la institución. Las cuentas con estos correos (o sus subdominios) aparecen como institucionales en Usuarios. Todas las cuentas nuevas confirman su correo con un enlace.">
+            <Field label="Dominios" hint="Solo la parte después de la @, separados por coma. Ej: amigo.edu.co, est.amigo.edu.co">
+              <Input
+                value={form.institutionalDomains}
+                onChange={(e) => setForm((f) => (f ? { ...f, institutionalDomains: e.target.value } : f))}
+                placeholder="universidad.edu.co"
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </Field>
+          </Section>
+        </div>
       </div>
 
       <Card className="p-5 sm:p-6">
@@ -170,6 +184,7 @@ export default function RulesSettings() {
           </li>
           <li>• Se libera si nadie llega en {Number.isNaN(form.noShowMinutes) ? "—" : form.noShowMinutes} minutos</li>
           <li>• Reservas con hasta {Number.isNaN(form.daysAhead) ? "—" : plural(form.daysAhead, "día", "días")} de anticipación</li>
+          <li>• Correos institucionales: {form.institutionalDomains.trim() ? form.institutionalDomains : "ninguno"}</li>
         </ul>
       </Card>
     </div>

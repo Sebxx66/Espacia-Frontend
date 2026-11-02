@@ -3,7 +3,7 @@ import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import {
-  Building2, CalendarDays, Download, CalendarPlus, CalendarX, ChartColumn, ClipboardList, KeyRound, LayoutGrid, Pencil, Plus,
+  BadgeCheck, Building2, CalendarDays, Download, MailCheck, CalendarPlus, CalendarX, ChartColumn, ClipboardList, KeyRound, LayoutGrid, Pencil, Plus,
   RefreshCw, Search, Settings, ShieldCheck, Trash2, TriangleAlert, UserCog, UserPlus, Users, Wrench,
 } from "lucide-react";
 import AppShell, { type NavItem } from "../components/AppShell";
@@ -15,7 +15,7 @@ import {
 } from "../components/ui";
 import {
   createSpace, createUser, deleteSpace, ESTADO_LABEL, getDashboard, getReservations, getSpaces, getUsers,
-  resetUserPassword, ROLE_LABEL, RULES, TYPE_LABEL, typeLabel, updateSpace, updateUser,
+  resetUserPassword, ROLE_LABEL, verifyUserEmail, RULES, TYPE_LABEL, typeLabel, updateSpace, updateUser,
   type AdminUser, type ReservationStatus, type Role, type Session, type Space, type SpaceEstado, type SpaceInput,
 } from "../api";
 import { exportReservationsCsv } from "../lib/export";
@@ -579,6 +579,18 @@ function UsersAdmin({ session }: { session: Session }) {
     }
   };
 
+  const confirmEmail = async (u: AdminUser) => {
+    const ok = await confirm({
+      title: "Confirmar correo",
+      message: <>Marca el correo de <b className="text-white">{u.name}</b> como confirmado sin esperar el enlace. Hazlo solo si verificaste que <b className="text-white">{u.email}</b> es de esa persona.</>,
+      confirmLabel: "Confirmar correo",
+    });
+    if (ok && await run(`v${u.id}`, () => verifyUserEmail(u.id), "Correo confirmado. Ya puede iniciar sesión.")) {
+      setManaging(null);
+      state.reload(true);
+    }
+  };
+
   const changeRole = async (u: AdminUser, role: Role) => {
     if (role === u.role) return;
     const ok = await confirm({
@@ -638,12 +650,19 @@ function UsersAdmin({ session }: { session: Session }) {
                         <div className="min-w-0">
                           <p className="text-white text-sm">{u.name}{isMe && <span className="text-[#6C7693]"> (tú)</span>}</p>
                           <p className="text-[#6C7693] text-xs truncate">{u.email}</p>
+                          {u.institutional && (
+                            <p className="inline-flex items-center gap-1 text-[11px] text-[#38D9A9] mt-0.5"><BadgeCheck className="w-3 h-3" /> Institucional</p>
+                          )}
                         </div>
                       </div>
                     </td>
                     <td className="py-3 px-4"><Pill tone={ROLE_TONE[u.role]}>{ROLE_LABEL[u.role]}</Pill></td>
                     <td className="py-3 px-4 text-[#C9D1E6] text-sm">{u.reservations}</td>
-                    <td className="py-3 px-4"><Pill tone={u.active ? "green" : "red"}>{u.active ? "Activo" : "Suspendido"}</Pill></td>
+                    <td className="py-3 px-4">
+                      {!u.emailVerified && u.active
+                        ? <Pill tone="amber">Sin confirmar correo</Pill>
+                        : <Pill tone={u.active ? "green" : "red"}>{u.active ? "Activo" : "Suspendido"}</Pill>}
+                    </td>
                     <td className="py-3 px-4 text-[#6C7693] text-xs">{timeAgo(u.createdAt) || "—"}</td>
                     <td className="py-3 px-4 text-right">
                       <Button size="sm" variant="secondary" icon={<UserCog className="w-3.5 h-3.5" />} onClick={() => setManaging(u)}>Gestionar</Button>
@@ -668,6 +687,14 @@ function UsersAdmin({ session }: { session: Session }) {
                     {(["student", "staff", "admin"] as Role[]).map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
                   </Select>
                 </Field>
+                {!managing.emailVerified && (
+                  <div className="space-y-3">
+                    <Alert tone="info">Se registró pero aún no abre el enlace que le llegó al correo, así que no puede iniciar sesión. Si en 7 días no lo confirma, la cuenta se borra sola.</Alert>
+                    <Button variant="secondary" className="w-full" icon={<MailCheck className="w-4 h-4" />} loading={busy === `v${managing.id}`} onClick={() => confirmEmail(managing)}>
+                      Confirmar correo manualmente
+                    </Button>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Button variant="secondary" icon={<KeyRound className="w-4 h-4" />} onClick={() => { setResetting(managing); setManaging(null); }}>
                     Restablecer contraseña

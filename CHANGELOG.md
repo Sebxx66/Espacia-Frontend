@@ -2,6 +2,14 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.7.0 — Verificación del correo al registrarse
+
+- **Registro con confirmación por correo.** Al crear la cuenta ya no se entra directamente: aparece la pantalla "Revisa tu correo" con el correo usado, un botón para reenviar el enlace (con espera de 60 segundos entre envíos) y otro para volver al inicio de sesión.
+- **Página del enlace** (`/?verificar=TOKEN`). Revisa de una vez si el enlace sigue vigente; si lo está, saluda a la persona por su nombre y pide la contraseña que eligió al registrarse para activar la cuenta e iniciar sesión. Si venció, ofrece pedir uno nuevo. El enlace abre esta pantalla aunque haya otra sesión abierta en el navegador.
+- **Inicio de sesión con la cuenta sin confirmar.** Si el backend responde `EMAIL_NO_VERIFICADO`, se muestra el aviso y un botón "Reenviar enlace de confirmación". `ApiError` ahora trae el `code` del backend.
+- **El enlace abre donde te registraste.** El registro y el reenvío envían `window.location.origin`, así el enlace del correo funciona también desde el celular en la misma red.
+- **Correos institucionales.** En el registro, un correo de un dominio institucional muestra la marca "Correo institucional". En **Configuración** hay una sección para editar los dominios. En **Usuarios**, las cuentas institucionales tienen su marca, las que no han confirmado el correo aparecen como "Sin confirmar correo" y el administrador puede confirmarlas a mano desde **Gestionar**.
+
 ## 1.6.0 — Reglas de reserva configurables
 
 - **Pestaña Configuración en el panel del administrador** (`src/components/RulesSettings.tsx`). Permite cambiar el horario, la duración máxima, las reservas activas, los límites diarios de equipos y salas, las horas para cancelar, los minutos para liberar una no asistida y los días de anticipación. Valida los valores antes de guardar, muestra una vista previa de cómo lo verán los usuarios y permite volver a los valores por defecto.

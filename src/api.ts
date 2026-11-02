@@ -19,6 +19,8 @@ export const RULES = {
   cancelHoursBefore: 1,
   noShowMinutes: 30,
   daysAhead: 30,
+  // Dominios de correo de la institución separados por coma (identifican a los usuarios institucionales)
+  institutionalDomains: "amigo.edu.co",
   minPassword: 8,
 };
 
@@ -35,7 +37,20 @@ export const DEFAULT_RULES: RulesForm = {
   cancelHoursBefore: 1,
   noShowMinutes: 30,
   daysAhead: 30,
+  institutionalDomains: "amigo.edu.co",
 };
+
+// true si el correo es de un dominio institucional (o de uno de sus subdominios)
+export function isInstitutionalEmail(email: string, domains = RULES.institutionalDomains): boolean {
+  const at = email.lastIndexOf("@");
+  if (at < 0) return false;
+  const domain = email.slice(at + 1).trim().toLowerCase();
+  return domains
+    .split(",")
+    .map((d) => d.trim().toLowerCase())
+    .filter(Boolean)
+    .some((d) => domain === d || domain.endsWith(`.${d}`));
+}
 
 export type Role = "student" | "admin" | "staff";
 export type SpaceStatus = "available" | "occupied" | "maintenance" | "inactive";
@@ -105,6 +120,8 @@ export interface AdminUser {
   email: string;
   role: Role;
   active: boolean;
+  emailVerified: boolean;
+  institutional: boolean;
   reservations: number;
   createdAt: string | null;
 }
@@ -148,7 +165,8 @@ export interface SpaceInput {
 }
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  // code: caso concreto que el backend marca (por ejemplo, EMAIL_NO_VERIFICADO)
+  constructor(public status: number, message: string, public code?: string) {
     super(message);
   }
 }
@@ -323,6 +341,8 @@ interface UserResponse {
   email: string;
   rol: string;
   activo: boolean;
+  emailVerificado?: boolean | null;
+  institucional?: boolean | null;
   reservas: number | null;
   creadoEn: string | null;
 }
@@ -334,6 +354,8 @@ function toUser(u: UserResponse): AdminUser {
     email: u.email,
     role: ROLE_FROM_API[u.rol] ?? "student",
     active: u.activo,
+    emailVerified: u.emailVerificado !== false,
+    institutional: !!u.institucional,
     reservations: u.reservas ?? 0,
     createdAt: u.creadoEn,
   };
@@ -445,13 +467,13 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
   }
 
   if (!res.ok) {
-    const message = (data as { message?: string } | null)?.message;
+    const { message, code } = (data as { message?: string; code?: string } | null) ?? ({} as { message?: string; code?: string });
     if (res.status === 401 && token) {
       clearSession();
       onUnauthorized();
       throw new ApiError(401, message ?? "Tu sesión expiró. Vuelve a iniciar sesión.");
     }
-    throw new ApiError(res.status, message ?? `Error ${res.status} del servidor.`);
+    throw new ApiError(res.status, message ?? `Error ${res.status} del servidor.`, code);
   }
   return data as T;
 }
@@ -483,13 +505,35 @@ export async function login(email: string, password: string): Promise<Session> {
   return startSession(await request<AuthResponse>("/api/v1/auth/login", json("POST", { email, password }), false));
 }
 
-// El registro exige la autorización de tratamiento de datos; se envía la versión de la política aceptada
-export async function register(name: string, email: string, password: string, policyVersion: string): Promise<Session> {
-  return startSession(await request<AuthResponse>(
+// Dirección desde la que se usa la app: el backend la usa (si es conocida o de la red local)
+// para que el enlace del correo abra en el mismo lugar, también desde el celular
+const appUrl = () => window.location.origin;
+
+// El registro exige la autorización de tratamiento de datos; se envía la versión de la política aceptada.
+// No inicia sesión: la cuenta queda pendiente hasta que la persona confirme su correo con el enlace.
+export async function register(name: string, email: string, password: string, policyVersion: string) {
+  return request<{ email: string; verificacionPendiente: boolean; institucional: boolean }>(
     "/api/v1/auth/register",
-    json("POST", { nombre: name, email, password, aceptaPrivacidad: true, versionPolitica: policyVersion }),
+    json("POST", { nombre: name, email, password, aceptaPrivacidad: true, versionPolitica: policyVersion, appUrl: appUrl() }),
     false,
-  ));
+  );
+}
+
+export const EMAIL_NOT_VERIFIED = "EMAIL_NO_VERIFICADO";
+
+// Revisa un enlace de verificación antes de pedir la contraseña
+export function checkVerification(token: string) {
+  return request<{ email: string; nombre: string }>("/api/v1/auth/verify-email/check", json("POST", { token }), false);
+}
+
+// Confirma el correo con el enlace y la contraseña del registro, e inicia la sesión
+export async function verifyEmail(token: string, password: string): Promise<Session> {
+  return startSession(await request<AuthResponse>("/api/v1/auth/verify-email", json("POST", { token, password }), false));
+}
+
+// Envía un enlace nuevo (el backend responde igual exista o no la cuenta)
+export function resendVerification(email: string) {
+  return request<void>("/api/v1/auth/resend-verification", json("POST", { email, appUrl: appUrl() }), false);
 }
 
 // Pide el correo con el enlace para elegir una contraseña nueva (el backend responde igual exista o no la cuenta)
@@ -521,6 +565,7 @@ interface RulesResponse {
   horasCancelacion: number;
   minutosNoAsistencia: number;
   diasAnticipacion: number;
+  dominiosInstitucionales: string | null;
   actualizadoEn: string | null;
 }
 
@@ -534,6 +579,7 @@ const fromApiRules = (r: RulesResponse): RulesForm => ({
   cancelHoursBefore: r.horasCancelacion,
   noShowMinutes: r.minutosNoAsistencia,
   daysAhead: r.diasAnticipacion,
+  institutionalDomains: (r.dominiosInstitucionales ?? "").split(",").filter(Boolean).join(", "),
 });
 
 // Carga las reglas vigentes al abrir la app. Si el backend no responde, se quedan los valores por defecto.
@@ -561,6 +607,7 @@ export async function saveRules(rules: RulesForm): Promise<{ rules: RulesForm; u
     horasCancelacion: rules.cancelHoursBefore,
     minutosNoAsistencia: rules.noShowMinutes,
     diasAnticipacion: rules.daysAhead,
+    dominiosInstitucionales: rules.institutionalDomains,
   }));
   const saved = fromApiRules(r);
   Object.assign(RULES, saved);
@@ -674,6 +721,11 @@ export async function updateUser(id: number, changes: { role?: Role; active?: bo
     rol: changes.role ? ROLE_TO_API[changes.role] : undefined,
     activo: changes.active,
   })));
+}
+
+// Confirma el correo de una cuenta sin esperar el enlace
+export async function verifyUserEmail(id: number): Promise<AdminUser> {
+  return toUser(await request<UserResponse>(`/api/v1/users/${id}/verify-email`, json("PATCH")));
 }
 
 export function resetUserPassword(id: number, password: string) {

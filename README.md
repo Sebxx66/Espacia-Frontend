@@ -49,7 +49,7 @@ Si no carga en el celular:
 
 ### Primer ingreso
 
-- **Estudiantes:** "Regístrate" en la pantalla de inicio (contraseña de al menos 8 caracteres). Recibirás un correo de bienvenida si el backend tiene el correo configurado.
+- **Estudiantes:** "Regístrate" en la pantalla de inicio (contraseña de al menos 8 caracteres). Llega un correo con un enlace para confirmar la cuenta: ábrelo y escribe la contraseña que elegiste. Si el backend no tiene el correo configurado, el enlace aparece en su consola, o el administrador puede confirmar la cuenta desde **Usuarios → Gestionar**.
 - **Administrador:** usa la cuenta inicial que crea el backend (ver su README) y cambia la contraseña.
 - **Funcionarios:** los crea el administrador desde **Usuarios → Nuevo usuario**.
 - **Recuperar contraseña:** "¿Olvidaste tu contraseña?" envía un enlace al correo registrado.

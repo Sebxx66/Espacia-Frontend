@@ -117,7 +117,10 @@ function Router() {
     );
   }
 
-  if (!session || nav.screen === "login") {
+  // El enlace de confirmación del correo siempre abre la pantalla de ingreso, aunque haya otra sesión abierta
+  const verifying = new URLSearchParams(window.location.search).has("verificar");
+
+  if (!session || nav.screen === "login" || verifying) {
     return <LoginScreen onLogin={(s) => {
       clearPersisted();
       setSession(s);

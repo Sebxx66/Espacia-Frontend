@@ -56,7 +56,7 @@ const fieldClasses =
   "w-full bg-[#0F1424] border border-[#222C47] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-[#59617A] " +
   "focus:outline-none focus:border-[#4C6EF5] focus:ring-2 focus:ring-[#4C6EF5]/25 transition-all disabled:opacity-60";
 
-export function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string | null; children: ReactNode }) {
+export function Field({ label, hint, error, children }: { label: string; hint?: ReactNode; error?: string | null; children: ReactNode }) {
   return (
     <label className="block">
       <span className="block text-xs font-500 text-[#A8B3CF] mb-1.5">{label}</span>
