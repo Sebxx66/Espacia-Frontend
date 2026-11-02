@@ -92,3 +92,20 @@ html, body, #root {
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in, .animate-pop-in, .animate-slide-up { animation: none; }
 }
+
+/* Accesibilidad: foco visible al navegar con teclado y menos animación si el sistema lo pide */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #748FFC;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

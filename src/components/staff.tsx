@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CircleCheck, LogIn, Plus, Undo2, UserX, Wrench } from "lucide-react";
 import {
-  checkInReservation, createIncident, finishReservation, getIncidents, getSpaces, rejectReservation, resolveIncident,
+  checkInReservation, createIncident, finishReservation, getIncidents, getSpaces, noShowReservation, rejectReservation, resolveIncident,
   type Incident, type Reservation,
 } from "../api";
 import { formatDate, reservationStart, timeAgo, todayISO } from "../lib/format";
@@ -44,6 +44,16 @@ export function ReservationActions({ r, onDone, compact }: { r: Reservation; onD
     if (ok && await run("rej", () => rejectReservation(r.id), "Reserva anulada.")) onDone();
   };
 
+  const noShow = async () => {
+    const ok = await confirm({
+      title: "Marcar como no asistida",
+      message: <>{r.userName} no llegó a su reserva {r.code} ({r.spaceName}, {r.start}–{r.end}). El espacio quedará libre y el usuario recibirá un aviso.</>,
+      confirmLabel: "Marcar no asistida",
+      danger: true,
+    });
+    if (ok && await run("rej", () => noShowReservation(r.id), "Reserva marcada como no asistida.")) onDone();
+  };
+
   const pending = r.status === "CONFIRMADA" || r.status === "PENDIENTE";
   // "No se presentó" solo tiene sentido cuando la reserva ya empezó; antes es una anulación
   const started = reservationStart(r).getTime() <= Date.now();
@@ -58,8 +68,8 @@ export function ReservationActions({ r, onDone, compact }: { r: Reservation; onD
         </Button>
       )}
       {pending && (
-        <Button size={size} variant="danger" icon={<UserX className="w-3.5 h-3.5" />} loading={busy === "rej"} onClick={reject}>
-          {r.expired ? "Cerrar como no asistida" : isToday && started ? "No se presentó" : "Anular"}
+        <Button size={size} variant="danger" icon={<UserX className="w-3.5 h-3.5" />} loading={busy === "rej"} onClick={started ? noShow : reject}>
+          {r.expired ? "Cerrar como no asistida" : started ? "No se presentó" : "Anular"}
         </Button>
       )}
     </div>
@@ -135,6 +145,7 @@ export function IncidentsPanel({ onChanged }: { onChanged?: () => void }) {
           <button
             key={value}
             onClick={() => setFilter(value)}
+            aria-pressed={filter === value}
             className={cx("px-3 py-1.5 rounded-lg text-xs border", filter === value ? "bg-[#4C6EF5]/15 text-[#8EA4FF] border-[#4C6EF5]/30" : "text-[#8A93AD] border-transparent hover:text-white")}
           >
             {label}

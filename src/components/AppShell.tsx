@@ -51,7 +51,7 @@ export default function AppShell({ session, items, active, onSelect, onLogout, t
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 space-y-1" aria-label="Menú principal">
         {items.map((item) => (
           <button
             key={item.id}
@@ -105,6 +105,10 @@ export default function AppShell({ session, items, active, onSelect, onLogout, t
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] flex">
+      {/* Para teclado y lectores de pantalla: salta el menú y va directo al contenido */}
+      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-[#4C6EF5] focus:text-white focus:text-sm">
+        Saltar al contenido
+      </a>
       {/* Menú lateral en escritorio */}
       <aside className="hidden lg:flex flex-col w-64 h-screen bg-[#0E1322] border-r border-[#1E2A45] px-4 py-6 fixed top-0 left-0 z-20">
         {nav}
@@ -123,7 +127,7 @@ export default function AppShell({ session, items, active, onSelect, onLogout, t
         </div>
       )}
 
-      <main className="flex-1 lg:ml-64 min-w-0 flex flex-col">
+      <main id="contenido" tabIndex={-1} className="flex-1 lg:ml-64 min-w-0 flex flex-col focus:outline-none">
         <header className="sticky top-0 z-10 bg-[#0B0F1A]/90 backdrop-blur border-b border-[#1E2A45] px-4 sm:px-6 lg:px-10 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <button onClick={() => setMenuOpen(true)} className="lg:hidden p-2 -ml-2 rounded-xl text-[#A8B3CF] hover:text-white hover:bg-white/5" aria-label="Abrir menú">

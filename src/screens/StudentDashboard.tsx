@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
   ArrowLeft, Bell, BellRing, CalendarDays, CalendarPlus, CalendarX, CheckCheck, CircleCheck, Clock, LayoutGrid,
-  LayoutList, MapPin, Package, Search, Timer, Undo2, Users,
+  LayoutList, MapPin, Package, Search, Timer, Undo2, UserX, Users,
 } from "lucide-react";
 import AppShell, { type NavItem } from "../components/AppShell";
 import StatusBadge from "../components/StatusBadge";
@@ -15,6 +15,7 @@ import {
 import { canCancel, canExtend, durationHours, formatDate, formatDateLong, isActive, parseISODate, timeAgo } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
 import { usePersistedState } from "../lib/persist";
+import AddToCalendar from "../components/AddToCalendar";
 
 export type StudentTab = "catalog" | "reservations" | "notifications";
 const STUDENT_TABS: readonly StudentTab[] = ["catalog", "reservations", "notifications"];
@@ -79,6 +80,8 @@ export default function StudentDashboard({ session, initialTab, onSpaceClick, on
     <div className="relative">
       <button
         onClick={() => setShowBell((s) => !s)}
+        aria-expanded={showBell}
+        aria-haspopup="dialog"
         className="relative w-10 h-10 rounded-xl bg-[#121828] border border-[#1E2A45] flex items-center justify-center text-[#A8B3CF] hover:text-white hover:border-[#4C6EF5]/40 transition-all"
         aria-label={`Notificaciones (${unread} sin leer)`}
       >
@@ -192,6 +195,7 @@ function Catalog({ onSpaceClick }: { onSpaceClick: (id: string) => void }) {
             <button
               key={c}
               onClick={() => setCategory(c)}
+              aria-pressed={category === c}
               className={cx(
                 "px-3.5 py-2 rounded-xl text-xs font-500 transition-all whitespace-nowrap",
                 category === c ? "bg-[#4C6EF5] text-white shadow-lg shadow-[#4C6EF5]/20" : "bg-[#121828] border border-[#1E2A45] text-[#8A93AD] hover:text-white",
@@ -217,6 +221,7 @@ function Catalog({ onSpaceClick }: { onSpaceClick: (id: string) => void }) {
           <button
             key={s.value}
             onClick={() => setStatus(s.value)}
+            aria-pressed={status === s.value}
             className={cx(
               "px-3 py-1.5 rounded-lg text-xs transition-all whitespace-nowrap",
               status === s.value ? "bg-[#20C997]/15 text-[#5FE3B8] border border-[#20C997]/30" : "text-[#8A93AD] hover:text-white hover:bg-white/5 border border-transparent",
@@ -338,7 +343,7 @@ function MyReservations({ state, onChanged, onBrowse }: {
       const d = parseISODate(r.date);
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     });
-    const used = month.filter((r) => r.status !== "CANCELADA" && r.status !== "RECHAZADA");
+    const used = month.filter((r) => r.status !== "CANCELADA" && r.status !== "RECHAZADA" && r.status !== "NO_ASISTIDA");
     return {
       total: used.length,
       hours: used.reduce((sum, r) => sum + durationHours(r), 0),
@@ -466,6 +471,7 @@ function MyReservations({ state, onChanged, onBrowse }: {
             <li>• Máximo {RULES.maxHours} horas por reserva</li>
             <li>• Por día: {RULES.maxEquipmentPerDay} equipo y {RULES.maxRoomsPerDay} salas o talleres</li>
             <li>• Cancela hasta {RULES.cancelHoursBefore} hora antes del inicio</li>
+            <li>• Si no llegas en {RULES.noShowMinutes} minutos, la reserva se libera</li>
             <li>• Horario: {RULES.openHour}:00 a {RULES.closeHour}:00</li>
           </ul>
         </Card>
@@ -501,6 +507,7 @@ function MyReservations({ state, onChanged, onBrowse }: {
             ))}
           </dl>
         )}
+        {detail && isActive(detail) && <AddToCalendar r={detail} className="mt-5" />}
       </Modal>
     </div>
   );
@@ -536,6 +543,7 @@ const NOTIF_ICON: Record<string, ReactNode> = {
   CONFIRMACION: <CircleCheck className="w-4 h-4 text-emerald-300" />,
   CANCELACION: <CalendarX className="w-4 h-4 text-rose-300" />,
   RECHAZADA: <CalendarX className="w-4 h-4 text-rose-300" />,
+  NO_ASISTIDA: <UserX className="w-4 h-4 text-rose-300" />,
   CHECK_IN: <CheckCheck className="w-4 h-4 text-[#8EA4FF]" />,
   FINALIZADA: <Undo2 className="w-4 h-4 text-[#8A93AD]" />,
   EXTENSION: <Timer className="w-4 h-4 text-amber-300" />,

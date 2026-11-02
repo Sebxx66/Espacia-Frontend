@@ -501,6 +501,7 @@ const STATUS_OPTIONS: { value: ReservationStatus | ""; label: string }[] = [
   { value: "FINALIZADA", label: "Finalizadas" },
   { value: "CANCELADA", label: "Canceladas" },
   { value: "RECHAZADA", label: "Anuladas" },
+  { value: "NO_ASISTIDA", label: "No asistidas" },
 ];
 
 function ReservationsAdmin() {
@@ -594,7 +595,7 @@ function UsersAdmin({ session }: { session: Session }) {
     <div>
       <div className="grid grid-cols-3 gap-3 mb-5 max-w-xl">
         {(["student", "staff", "admin"] as Role[]).map((r) => (
-          <button key={r} onClick={() => setRoleFilter(roleFilter === r ? "" : r)} className={cx("text-left rounded-2xl border px-4 py-3 transition-all", roleFilter === r ? "border-[#4C6EF5]/50 bg-[#4C6EF5]/10" : "border-[#1E2A45] bg-[#121828] hover:border-[#4C6EF5]/30")}>
+          <button key={r} onClick={() => setRoleFilter(roleFilter === r ? "" : r)} aria-pressed={roleFilter === r} className={cx("text-left rounded-2xl border px-4 py-3 transition-all", roleFilter === r ? "border-[#4C6EF5]/50 bg-[#4C6EF5]/10" : "border-[#1E2A45] bg-[#121828] hover:border-[#4C6EF5]/30")}>
             <p className="font-display font-700 text-white text-xl">{counts(r)}</p>
             <p className="text-xs text-[#8A93AD]">{ROLE_LABEL[r]}{r === "admin" ? "es" : "s"}</p>
           </button>

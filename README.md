@@ -62,10 +62,11 @@ Con `npm run dev`, la pantalla de inicio muestra atajos de **accesos de demostra
 - Catálogo con búsqueda, filtros por tipo y estado, y ocupación en tiempo real.
 - Reservar eligiendo fecha y horario según la disponibilidad real, con límite de 1 equipo y 2 salas por día.
 - Mis reservas: ver detalle, extender 1 hora, cancelar, historial y resumen del mes.
+- Añadir la reserva al calendario: Google Calendar o archivo `.ics` (Apple Calendar, Outlook y el calendario del celular), con aviso 30 minutos antes.
 - Notificaciones de confirmaciones, cancelaciones, llegadas y devoluciones.
 
 **Funcionario**
-- Llegadas de hoy: validar la llegada o marcar a quien no se presentó.
+- Llegadas de hoy: validar la llegada o marcar a quien no se presentó. Si nadie valida la llegada en 30 minutos, el backend libera la reserva solo.
 - En uso: registrar devoluciones de equipos y el fin de uso de los espacios.
 - Monitor de espacios, reservas del día y soporte técnico (incidencias y mantenimiento).
 
@@ -101,6 +102,12 @@ Los tres roles pueden cambiar su contraseña desde el menú lateral.
 
 `npm run build` genera `dist/` sin el servidor de desarrollo, así que ahí no existe el reenvío de `/backend`. Define `VITE_API_URL` con la URL pública del backend antes de compilar y agrega el dominio del frontend en `CORS_ALLOWED_ORIGINS` del backend.
 
+## Accesibilidad
+
+- Navegación completa con teclado: foco visible, enlace "Saltar al contenido" y diálogos que retienen el foco, se cierran con Escape y lo devuelven al cerrar.
+- Etiquetas para lectores de pantalla en botones de solo ícono, filtros (`aria-pressed`), días del calendario y bloques de horario (indican si están ocupados o ya pasaron).
+- Respeta la preferencia del sistema de reducir animaciones.
+
 ## Historial de cambios
 
 Ver [CHANGELOG.md](CHANGELOG.md).
@@ -108,3 +115,7 @@ Ver [CHANGELOG.md](CHANGELOG.md).
 ## Imágenes
 
 Las fotos de los espacios se cargan desde Unsplash (licencia libre, uso comercial permitido). Si no hay conexión se muestran las ilustraciones de `public/spaces/`.
+
+## Licencia
+
+Copyright © 2026 Sebxx66. Todos los derechos reservados. El código se publica solo para consulta; ver [LICENSE](LICENSE).

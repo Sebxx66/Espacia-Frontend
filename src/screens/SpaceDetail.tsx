@@ -8,6 +8,7 @@ import {
 } from "../api";
 import { formatDateLong, hourLabel, hourOf, parseISODate, toISODate, todayISO } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
+import AddToCalendar from "../components/AddToCalendar";
 
 interface Props {
   session: Session;
@@ -188,6 +189,7 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
                   `Máximo ${RULES.maxHours} horas por reserva`,
                   `Máximo ${RULES.maxActive} reservas activas a la vez`,
                   `Cancelación hasta ${RULES.cancelHoursBefore} hora antes`,
+                  `Si no llegas en ${RULES.noShowMinutes} minutos, la reserva se libera`,
                   `Reservas con hasta ${RULES.daysAhead} días de anticipación`,
                   "Presenta tu reserva al personal al llegar",
                 ].map((rule) => <li key={rule} className="flex gap-2"><span className="text-[#4C6EF5]">—</span>{rule}</li>)}
@@ -241,7 +243,8 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
                         </div>
                       ))}
                     </div>
-                    <div className="flex flex-wrap gap-3 justify-center mt-8">
+                    <AddToCalendar r={created} className="justify-center mt-6" />
+                    <div className="flex flex-wrap gap-3 justify-center mt-6">
                       <Button variant="secondary" onClick={onBack}>Volver al catálogo</Button>
                       <Button icon={<CalendarCheck className="w-4 h-4" />} onClick={onViewReservations}>Ver mis reservas</Button>
                     </div>
@@ -269,6 +272,9 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
                           <button
                             key={iso}
                             disabled={outOfRange}
+                            aria-label={formatDateLong(iso)}
+                            aria-pressed={selected}
+                            aria-current={iso === todayISO() ? "date" : undefined}
                             onClick={() => { setDate(iso); setStart(null); setEnd(null); }}
                             className={cx(
                               "aspect-square rounded-xl text-sm flex items-center justify-center transition-all",
@@ -315,6 +321,8 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
                             <button
                               key={h}
                               disabled={st !== "free"}
+                              aria-pressed={selected}
+                              aria-label={`${hourLabel(h)} a ${hourLabel(h + 1)}${st === "busy" ? ", ocupado" : st === "past" ? ", ya pasó" : ""}`}
                               onClick={() => pickBlock(h)}
                               className={cx(
                                 "py-3 rounded-xl text-sm font-mono transition-all border",

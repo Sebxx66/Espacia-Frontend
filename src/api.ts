@@ -16,6 +16,7 @@ export const RULES = {
   maxEquipmentPerDay: 1,
   maxRoomsPerDay: 2,
   cancelHoursBefore: 1,
+  noShowMinutes: 30,
   daysAhead: 30,
   minPassword: 8,
 };
@@ -23,7 +24,7 @@ export const RULES = {
 export type Role = "student" | "admin" | "staff";
 export type SpaceStatus = "available" | "occupied" | "maintenance" | "inactive";
 export type SpaceEstado = "ACTIVO" | "INACTIVO" | "MANTENIMIENTO";
-export type ReservationStatus = "PENDIENTE" | "CONFIRMADA" | "RECHAZADA" | "EN_USO" | "FINALIZADA" | "CANCELADA";
+export type ReservationStatus = "PENDIENTE" | "CONFIRMADA" | "RECHAZADA" | "EN_USO" | "FINALIZADA" | "CANCELADA" | "NO_ASISTIDA";
 
 export interface Session {
   token: string;
@@ -551,6 +552,7 @@ export const extendReservation = (id: number) => patchReservation(id, "extend");
 export const checkInReservation = (id: number) => patchReservation(id, "check-in");
 export const finishReservation = (id: number) => patchReservation(id, "finish");
 export const rejectReservation = (id: number) => patchReservation(id, "reject");
+export const noShowReservation = (id: number) => patchReservation(id, "no-show");
 
 export async function getReservations(filters: { status?: ReservationStatus | ""; date?: string } = {}): Promise<Reservation[]> {
   const params = new URLSearchParams();

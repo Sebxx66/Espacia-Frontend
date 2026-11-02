@@ -1,5 +1,5 @@
 import {
-  createContext, useCallback, useContext, useEffect, useRef, useState,
+  createContext, useCallback, useContext, useEffect, useId, useRef, useState,
   type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode,
   type SelectHTMLAttributes, type TextareaHTMLAttributes,
 } from "react";
@@ -62,7 +62,7 @@ export function Field({ label, hint, error, children }: { label: string; hint?: 
       <span className="block text-xs font-500 text-[#A8B3CF] mb-1.5">{label}</span>
       {children}
       {error ? (
-        <span className="block text-xs text-rose-300 mt-1.5">{error}</span>
+        <span role="alert" className="block text-xs text-rose-300 mt-1.5">{error}</span>
       ) : hint ? (
         <span className="block text-xs text-[#6C7693] mt-1.5">{hint}</span>
       ) : null}
@@ -190,23 +190,59 @@ export function Modal({ open, title, subtitle, onClose, children, footer, size =
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  // onClose cambia en cada render del padre: se guarda en una ref para no reiniciar el foco
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
+  // Accesibilidad: Escape cierra, el foco entra al diálogo, Tab no se sale de él y al cerrar vuelve a donde estaba
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const previous = document.activeElement as HTMLElement | null;
+    const focusables = () =>
+      Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+    const first = focusables().find((el) => el.tagName !== "BUTTON" || !el.closest("[data-modal-close]"));
+    (first ?? dialogRef.current)?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") return closeRef.current();
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const firstItem = items[0];
+      const lastItem = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === firstItem) {
+        e.preventDefault();
+        lastItem.focus();
+      } else if (!e.shiftKey && document.activeElement === lastItem) {
+        e.preventDefault();
+        firstItem.focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      previous?.focus?.();
+    };
+  }, [open]);
 
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
         className={cx(
-          "relative w-full bg-[#121828] border border-[#26324F] shadow-2xl animate-pop-in",
+          "relative w-full bg-[#121828] border border-[#26324F] shadow-2xl animate-pop-in focus:outline-none",
           "rounded-t-3xl sm:rounded-2xl max-h-[92vh] flex flex-col",
           size === "sm" && "sm:max-w-md",
           size === "md" && "sm:max-w-lg",
@@ -215,10 +251,10 @@ export function Modal({ open, title, subtitle, onClose, children, footer, size =
       >
         <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-[#1E2A45]">
           <div>
-            <h3 className="font-display font-700 text-white text-lg">{title}</h3>
+            <h3 id={titleId} className="font-display font-700 text-white text-lg">{title}</h3>
             {subtitle && <p className="text-[#6C7693] text-xs mt-0.5">{subtitle}</p>}
           </div>
-          <button onClick={onClose} className="p-1.5 -mr-1.5 rounded-lg text-[#6C7693] hover:text-white hover:bg-white/5 transition-colors" aria-label="Cerrar">
+          <button data-modal-close onClick={onClose} className="p-1.5 -mr-1.5 rounded-lg text-[#6C7693] hover:text-white hover:bg-white/5 transition-colors" aria-label="Cerrar">
             <X className="w-5 h-5" />
           </button>
         </div>

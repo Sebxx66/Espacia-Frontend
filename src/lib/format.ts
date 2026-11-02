@@ -88,6 +88,7 @@ const STATUS_INFO: Record<ReservationStatus, { label: string; tone: Tone }> = {
   FINALIZADA: { label: "Finalizada", tone: "gray" },
   CANCELADA: { label: "Cancelada", tone: "red" },
   RECHAZADA: { label: "Anulada", tone: "red" },
+  NO_ASISTIDA: { label: "No asistida", tone: "red" },
 };
 
 export function reservationStatusInfo(r: Pick<Reservation, "status" | "expired">): { label: string; tone: Tone } {

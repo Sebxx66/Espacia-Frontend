@@ -2,7 +2,8 @@
   "name": "espacia-frontend",
   "description": "Aplicación web para reservar espacios y recursos de la biblioteca",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.4.0",
+  "license": "UNLICENSED",
   "type": "module",
   "scripts": {
     "dev": "vite",

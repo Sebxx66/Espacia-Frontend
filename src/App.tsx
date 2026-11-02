@@ -5,6 +5,7 @@ import AdminDashboard from "./screens/AdminDashboard";
 import SpaceDetail from "./screens/SpaceDetail";
 import FunctionalDashboard from "./screens/FunctionalDashboard";
 import { UiProvider } from "./components/ui";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { clearSession, loadSession, setUnauthorizedHandler, type Role, type Session } from "./api";
 import { clearPersisted, readPersisted, writePersisted } from "./lib/persist";
 
@@ -46,9 +47,11 @@ function restoreNav(session: Session | null): NavState {
 
 export default function App() {
   return (
-    <UiProvider>
-      <Router />
-    </UiProvider>
+    <ErrorBoundary>
+      <UiProvider>
+        <Router />
+      </UiProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -2,6 +2,19 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.4.0 — Calendario, no asistidas, accesibilidad y pantalla de error
+
+- **Añadir al calendario.** En la confirmación de la reserva y en su detalle hay dos opciones: Google Calendar (enlace con fecha, hora, lugar y zona `America/Bogota`) y un archivo `.ics` para Apple Calendar, Outlook y el calendario del celular. `src/lib/calendar.ts` arma el archivo según el estándar iCalendar, con la zona horaria incluida y un aviso 30 minutos antes.
+- **Reservas no asistidas.** Nuevo estado "No asistida" en la interfaz, los filtros del administrador y las notificaciones. El botón del personal ahora usa `PATCH /reservations/{id}/no-show` cuando la reserva ya empezó ("No se presentó" o "Cerrar como no asistida") y sigue anulando cuando aún no empieza. Las normas de uso avisan que la reserva se libera si no llegas en 30 minutos.
+- **Pantalla de error amigable.** `ErrorBoundary` envuelve la aplicación: si una pantalla falla por un error inesperado, en vez de quedar en blanco muestra un mensaje con botones para recargar o volver al inicio.
+- **Accesibilidad.**
+  - `Modal` lleva el foco al diálogo, no deja salir con Tab, se cierra con Escape y devuelve el foco al elemento que lo abrió; el título queda enlazado con `aria-labelledby`.
+  - Enlace "Saltar al contenido" en el menú lateral y foco visible en todos los controles.
+  - `aria-pressed` en filtros y bloques de horario, y etiquetas descriptivas en los días del calendario y en las horas (ocupada o ya pasó).
+  - Los errores de los formularios se anuncian a los lectores de pantalla y se respeta la preferencia de reducir animaciones.
+- **Licencia.** Todos los derechos reservados (archivo `LICENSE`, `"license": "UNLICENSED"` en `package.json`).
+- La versión pasa a `1.4.0` en `package.json`, alineada con este historial y con el backend.
+
 ## 1.3.0 — Recargar sin perder la pantalla
 
 - **Recargar la página ya no devuelve a la pantalla principal.** La navegación era solo estado en memoria, así que al recargar (F5) se perdía. `src/lib/persist.ts` guarda en `sessionStorage` la pantalla abierta, el espacio que se está viendo y la pestaña de cada panel (estudiante, funcionario y administrador). Al recargar, `App.tsx` restaura esa pantalla si la sesión sigue vigente y el rol puede verla; al cerrar o iniciar sesión se borra.
