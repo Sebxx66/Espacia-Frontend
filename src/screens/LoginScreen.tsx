@@ -4,6 +4,7 @@ import LogoMark from "../components/LogoMark";
 import PhoneQr from "../components/PhoneQr";
 import { forgotPassword, login, register, resetPassword, RULES, type Session } from "../api";
 import { Alert, Button, Field, Input } from "../components/ui";
+import { LEGAL } from "../legal/config";
 
 interface Props {
   onLogin: (session: Session) => void;
@@ -29,6 +30,7 @@ export default function LoginScreen({ onLogin }: Props) {
   const [repeat, setRepeat] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -52,6 +54,9 @@ export default function LoginScreen({ onLogin }: Props) {
     if (mode === "register" || mode === "reset") {
       if (password.length < RULES.minPassword) return `La contraseña debe tener al menos ${RULES.minPassword} caracteres.`;
       if (password !== repeat) return "Las contraseñas no coinciden.";
+    }
+    if (mode === "register" && !accepted) {
+      return "Para crear tu cuenta debes aceptar los Términos de uso y autorizar el tratamiento de tus datos personales.";
     }
     return null;
   };
@@ -78,7 +83,7 @@ export default function LoginScreen({ onLogin }: Props) {
         return;
       }
       const session = mode === "register"
-        ? await register(name.trim(), email.trim(), password)
+        ? await register(name.trim(), email.trim(), password, LEGAL.version)
         : await login(email.trim(), password);
       onLogin(session);
     } catch (err) {
@@ -261,6 +266,23 @@ export default function LoginScreen({ onLogin }: Props) {
                 )}
               </div>
 
+              {mode === "register" && (
+                <label className="flex items-start gap-3 mt-5 text-xs text-[#A8B3CF] leading-relaxed cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={accepted}
+                    onChange={(e) => setAccepted(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#4C6EF5] cursor-pointer"
+                  />
+                  <span>
+                    Acepto los{" "}
+                    <a href="/?doc=terminos" target="_blank" rel="noopener noreferrer" className="text-[#8EA4FF] hover:text-white hover:underline underline-offset-2">Términos de uso</a>{" "}
+                    y autorizo el tratamiento de mis datos personales según la{" "}
+                    <a href="/?doc=privacidad" target="_blank" rel="noopener noreferrer" className="text-[#8EA4FF] hover:text-white hover:underline underline-offset-2">Política de privacidad</a>.
+                  </span>
+                </label>
+              )}
+
               {mode === "login" && (
                 <div className="flex justify-end mt-3">
                   <button type="button" onClick={() => switchMode("forgot")} className="text-xs text-[#8EA4FF] hover:text-white transition-colors">
@@ -314,6 +336,12 @@ export default function LoginScreen({ onLogin }: Props) {
                   </button>
                 </p>
               )}
+
+              <p className="text-center text-xs text-[#6C7693] mt-6">
+                <a href="/?doc=privacidad" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Política de privacidad</a>
+                <span className="mx-2" aria-hidden="true">·</span>
+                <a href="/?doc=terminos" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Términos de uso</a>
+              </p>
             </form>
           )}
         </div>

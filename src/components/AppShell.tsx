@@ -99,6 +99,11 @@ export default function AppShell({ session, items, active, onSelect, onLogout, t
         >
           <LogOut className="w-4 h-4" /> Cerrar sesión
         </button>
+        <p className="px-3 pt-2 text-[11px] text-[#59617A]">
+          <a href="/?doc=privacidad" target="_blank" rel="noopener noreferrer" className="hover:text-[#A8B3CF]">Privacidad</a>
+          <span className="mx-1.5" aria-hidden="true">·</span>
+          <a href="/?doc=terminos" target="_blank" rel="noopener noreferrer" className="hover:text-[#A8B3CF]">Términos</a>
+        </p>
       </div>
     </>
   );

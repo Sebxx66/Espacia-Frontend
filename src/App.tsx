@@ -6,6 +6,7 @@ import SpaceDetail from "./screens/SpaceDetail";
 import FunctionalDashboard from "./screens/FunctionalDashboard";
 import { UiProvider } from "./components/ui";
 import ErrorBoundary from "./components/ErrorBoundary";
+import LegalScreen, { type LegalKey } from "./screens/LegalScreen";
 import { clearSession, loadSession, setUnauthorizedHandler, type Role, type Session } from "./api";
 import { clearPersisted, readPersisted, writePersisted } from "./lib/persist";
 
@@ -35,6 +36,14 @@ const ALLOWED: Record<Role, Screen[]> = {
   admin: ["admin-dashboard", "student-home", "space-detail"],
   staff: ["staff-dashboard", "student-home", "space-detail"],
 };
+
+const APP_TITLE = "Espacia · Reserva de espacios y recursos";
+
+// /?doc=privacidad o /?doc=terminos abre el documento legal, con o sin sesión
+function readLegalDoc(): LegalKey | null {
+  const doc = new URLSearchParams(window.location.search).get("doc");
+  return doc === "privacidad" || doc === "terminos" ? doc : null;
+}
 
 function restoreNav(session: Session | null): NavState {
   if (!session) return { screen: "login" };
@@ -80,6 +89,26 @@ function Router() {
   useEffect(() => {
     setUnauthorizedHandler(logout);
   }, []);
+
+  const [legalDoc, setLegalDoc] = useState<LegalKey | null>(readLegalDoc);
+  useEffect(() => {
+    const onChange = () => setLegalDoc(readLegalDoc());
+    window.addEventListener("popstate", onChange);
+    return () => window.removeEventListener("popstate", onChange);
+  }, []);
+
+  if (legalDoc) {
+    return (
+      <LegalScreen
+        doc={legalDoc}
+        onBack={() => {
+          window.history.replaceState({}, "", "/");
+          document.title = APP_TITLE;
+          setLegalDoc(null);
+        }}
+      />
+    );
+  }
 
   if (!session || nav.screen === "login") {
     return <LoginScreen onLogin={(s) => {

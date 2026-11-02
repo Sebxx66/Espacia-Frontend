@@ -2,6 +2,13 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.5.0 — Privacidad y términos de uso
+
+- **Política de tratamiento de datos personales y Términos de uso.** Nueva pantalla pública `LegalScreen` (`/?doc=privacidad` y `/?doc=terminos`) con índice, versión, fecha de vigencia y opción de imprimir. La política sigue la Ley 1581 de 2012 y el Decreto 1377 de 2013: responsable y encargado, datos que se recogen, finalidades, autorización, derechos del titular, plazos de consultas (10 días hábiles) y reclamos (15 días hábiles), seguridad, transferencias, conservación, almacenamiento en el navegador y menores de edad. Los términos recogen las reglas de reserva directamente de `RULES`, así que siempre coinciden con la aplicación.
+- **Autorización al registrarse.** El formulario de registro tiene una casilla obligatoria para aceptar los términos y autorizar el tratamiento de datos; sin ella no se puede crear la cuenta. Se envía la versión de la política aceptada (`src/legal/config.ts`).
+- **Enlaces** a ambos documentos en la pantalla de inicio de sesión y en el menú lateral.
+- **Personalizable por institución** con `VITE_INSTITUTION_NAME`, `VITE_PRIVACY_EMAIL` y `VITE_LEGAL_CITY`.
+
 ## 1.4.0 — Calendario, no asistidas, accesibilidad y pantalla de error
 
 - **Añadir al calendario.** En la confirmación de la reserva y en su detalle hay dos opciones: Google Calendar (enlace con fecha, hora, lugar y zona `America/Bogota`) y un archivo `.ics` para Apple Calendar, Outlook y el calendario del celular. `src/lib/calendar.ts` arma el archivo según el estándar iCalendar, con la zona horaria incluida y un aviso 30 minutos antes.

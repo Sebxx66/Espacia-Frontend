@@ -102,6 +102,21 @@ Los tres roles pueden cambiar su contraseña desde el menú lateral.
 
 `npm run build` genera `dist/` sin el servidor de desarrollo, así que ahí no existe el reenvío de `/backend`. Define `VITE_API_URL` con la URL pública del backend antes de compilar y agrega el dominio del frontend en `CORS_ALLOWED_ORIGINS` del backend.
 
+## Privacidad y términos
+
+La aplicación incluye una **Política de tratamiento de datos personales** (Ley 1581 de 2012) y unos **Términos de uso**, en `/?doc=privacidad` y `/?doc=terminos`, enlazados desde la pantalla de inicio y el menú lateral.
+Para crear una cuenta hay que aceptar ambos; el backend guarda la fecha y la versión aceptada.
+
+Cada institución personaliza los documentos en `.env.local`:
+
+| Variable | Uso |
+|---|---|
+| `VITE_INSTITUTION_NAME` | Institución responsable de los datos. Sin ella se usa una descripción genérica |
+| `VITE_PRIVACY_EMAIL` | Correo para consultas y reclamos sobre datos personales |
+| `VITE_LEGAL_CITY` | Ciudad de los documentos (por defecto, Medellín, Colombia) |
+
+Los textos están en `src/legal/content.ts`. Si los cambias, sube la versión en `src/legal/config.ts`. Conviene que un abogado los revise antes de usarlos con una institución.
+
 ## Accesibilidad
 
 - Navegación completa con teclado: foco visible, enlace "Saltar al contenido" y diálogos que retienen el foco, se cierran con Escape y lo devuelven al cerrar.

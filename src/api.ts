@@ -467,10 +467,11 @@ export async function login(email: string, password: string): Promise<Session> {
   return startSession(await request<AuthResponse>("/api/v1/auth/login", json("POST", { email, password }), false));
 }
 
-export async function register(name: string, email: string, password: string): Promise<Session> {
+// El registro exige la autorización de tratamiento de datos; se envía la versión de la política aceptada
+export async function register(name: string, email: string, password: string, policyVersion: string): Promise<Session> {
   return startSession(await request<AuthResponse>(
     "/api/v1/auth/register",
-    json("POST", { nombre: name, email, password }),
+    json("POST", { nombre: name, email, password, aceptaPrivacidad: true, versionPolitica: policyVersion }),
     false,
   ));
 }
