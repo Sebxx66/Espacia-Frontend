@@ -104,3 +104,17 @@ export const TONE_CLASSES: Record<Tone, string> = {
   red: "bg-rose-400/10 text-rose-300 border-rose-400/25",
   gray: "bg-white/5 text-[#8A93AD] border-white/10",
 };
+
+// --- Textos de las reglas (con singular y plural según los valores vigentes) --------------------
+
+export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+export const scheduleText = () => `${RULES.openHour}:00 a ${RULES.closeHour}:00`;
+
+export const dailyLimitText = () =>
+  `${plural(RULES.maxEquipmentPerDay, "equipo", "equipos")} y ${plural(RULES.maxRoomsPerDay, "sala o taller", "salas o talleres")}`;
+
+export const cancelRuleText = () =>
+  RULES.cancelHoursBefore === 0
+    ? "Puedes cancelar hasta que empiece la reserva"
+    : `Cancela hasta ${plural(RULES.cancelHoursBefore, "hora", "horas")} antes del inicio`;

@@ -72,6 +72,7 @@ Con `npm run dev`, la pantalla de inicio muestra atajos de **accesos de demostra
 
 **Administrador**
 - Dashboard con estadísticas reales.
+- **Configuración** de las reglas de reserva: horario, duración máxima, reservas activas, límites por día, cancelación, minutos para liberar una no asistida y días de anticipación. Se aplican de inmediato en toda la aplicación.
 - Gestión de espacios, reservas, usuarios (roles, suspensión, restablecer contraseña), incidencias y tipos de espacio.
 - Exportación de las reservas filtradas a un archivo que abre Excel.
 

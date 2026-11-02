@@ -12,7 +12,7 @@ import {
   cancelReservation, extendReservation, getMyReservations, getNotifications, getSpaces, markAllNotificationsRead,
   markNotificationRead, RULES, spaceImage, swapToFallback, type AppNotification, type Reservation, type Session, type SpaceStatus,
 } from "../api";
-import { canCancel, canExtend, durationHours, formatDate, formatDateLong, isActive, parseISODate, timeAgo } from "../lib/format";
+import { canCancel, canExtend, cancelRuleText, dailyLimitText, durationHours, formatDate, formatDateLong, isActive, parseISODate, plural, scheduleText, timeAgo } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
 import { usePersistedState } from "../lib/persist";
 import AddToCalendar from "../components/AddToCalendar";
@@ -468,11 +468,11 @@ function MyReservations({ state, onChanged, onBrowse }: {
             <div className="h-full bg-[#4C6EF5] rounded-full transition-all" style={{ width: `${Math.min(100, (active.length / RULES.maxActive) * 100)}%` }} />
           </div>
           <ul className="mt-4 space-y-1.5 text-xs text-[#8A93AD]">
-            <li>• Máximo {RULES.maxHours} horas por reserva</li>
-            <li>• Por día: {RULES.maxEquipmentPerDay} equipo y {RULES.maxRoomsPerDay} salas o talleres</li>
-            <li>• Cancela hasta {RULES.cancelHoursBefore} hora antes del inicio</li>
+            <li>• Máximo {plural(RULES.maxHours, "hora", "horas")} por reserva</li>
+            <li>• Por día: {dailyLimitText()}</li>
+            <li>• {cancelRuleText()}</li>
             <li>• Si no llegas en {RULES.noShowMinutes} minutos, la reserva se libera</li>
-            <li>• Horario: {RULES.openHour}:00 a {RULES.closeHour}:00</li>
+            <li>• Horario: {scheduleText()}</li>
           </ul>
         </Card>
       </div>

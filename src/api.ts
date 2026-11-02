@@ -7,7 +7,8 @@
 const API_URL = (import.meta.env.VITE_API_URL ?? "/backend").replace(/\/$/, "");
 const SESSION_KEY = "espacia.session";
 
-// Reglas de reserva (las mismas que valida el backend)
+// Reglas de reserva vigentes. Arrancan con los valores por defecto y se reemplazan por las que
+// devuelve el backend al abrir la app (loadRules); el administrador las cambia en Configuración.
 export const RULES = {
   openHour: 8,
   closeHour: 20,
@@ -19,6 +20,21 @@ export const RULES = {
   noShowMinutes: 30,
   daysAhead: 30,
   minPassword: 8,
+};
+
+// Reglas que el administrador puede cambiar (todas menos la longitud mínima de la contraseña)
+export type RulesForm = Omit<typeof RULES, "minPassword">;
+
+export const DEFAULT_RULES: RulesForm = {
+  openHour: 8,
+  closeHour: 20,
+  maxHours: 4,
+  maxActive: 3,
+  maxEquipmentPerDay: 1,
+  maxRoomsPerDay: 2,
+  cancelHoursBefore: 1,
+  noShowMinutes: 30,
+  daysAhead: 30,
 };
 
 export type Role = "student" | "admin" | "staff";
@@ -491,6 +507,64 @@ export async function changePassword(current: string, next: string) {
   const res = await request<{ token?: string } | null>("/api/v1/auth/password", json("PATCH", { actual: current, nueva: next }));
   const session = loadSession();
   if (res?.token && session) saveSession({ ...session, token: res.token });
+}
+
+// --- Reglas de reserva -------------------------------------------------------
+
+interface RulesResponse {
+  horaApertura: number;
+  horaCierre: number;
+  maxHorasReserva: number;
+  maxReservasActivas: number;
+  maxEquiposDia: number;
+  maxSalasDia: number;
+  horasCancelacion: number;
+  minutosNoAsistencia: number;
+  diasAnticipacion: number;
+  actualizadoEn: string | null;
+}
+
+const fromApiRules = (r: RulesResponse): RulesForm => ({
+  openHour: r.horaApertura,
+  closeHour: r.horaCierre,
+  maxHours: r.maxHorasReserva,
+  maxActive: r.maxReservasActivas,
+  maxEquipmentPerDay: r.maxEquiposDia,
+  maxRoomsPerDay: r.maxSalasDia,
+  cancelHoursBefore: r.horasCancelacion,
+  noShowMinutes: r.minutosNoAsistencia,
+  daysAhead: r.diasAnticipacion,
+});
+
+// Carga las reglas vigentes al abrir la app. Si el backend no responde, se quedan los valores por defecto.
+export async function loadRules(): Promise<void> {
+  try {
+    Object.assign(RULES, fromApiRules(await request<RulesResponse>("/api/v1/rules", {}, false)));
+  } catch {
+    // sin conexión: la app sigue con los valores por defecto y el backend valida igual
+  }
+}
+
+export async function getRules(): Promise<{ rules: RulesForm; updatedAt: string | null }> {
+  const r = await request<RulesResponse>("/api/v1/rules", {}, false);
+  return { rules: fromApiRules(r), updatedAt: r.actualizadoEn };
+}
+
+export async function saveRules(rules: RulesForm): Promise<{ rules: RulesForm; updatedAt: string | null }> {
+  const r = await request<RulesResponse>("/api/v1/rules", json("PUT", {
+    horaApertura: rules.openHour,
+    horaCierre: rules.closeHour,
+    maxHorasReserva: rules.maxHours,
+    maxReservasActivas: rules.maxActive,
+    maxEquiposDia: rules.maxEquipmentPerDay,
+    maxSalasDia: rules.maxRoomsPerDay,
+    horasCancelacion: rules.cancelHoursBefore,
+    minutosNoAsistencia: rules.noShowMinutes,
+    diasAnticipacion: rules.daysAhead,
+  }));
+  const saved = fromApiRules(r);
+  Object.assign(RULES, saved);
+  return { rules: saved, updatedAt: r.actualizadoEn };
 }
 
 // --- Espacios --------------------------------------------------------------

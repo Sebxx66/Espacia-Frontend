@@ -2,6 +2,12 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.6.0 — Reglas de reserva configurables
+
+- **Pestaña Configuración en el panel del administrador** (`src/components/RulesSettings.tsx`). Permite cambiar el horario, la duración máxima, las reservas activas, los límites diarios de equipos y salas, las horas para cancelar, los minutos para liberar una no asistida y los días de anticipación. Valida los valores antes de guardar, muestra una vista previa de cómo lo verán los usuarios y permite volver a los valores por defecto.
+- **La app usa siempre las reglas vigentes.** `loadRules()` las trae del backend (`GET /api/v1/rules`) antes de mostrar la primera pantalla y actualiza `RULES`. Los bloques de horario de la reserva, los textos de normas, la pantalla de inicio, el calendario y los Términos de uso salen de ahí. Si el backend no responde, se usan los valores por defecto.
+- Textos con singular y plural según el valor (`plural`, `scheduleText`, `dailyLimitText` y `cancelRuleText` en `src/lib/format.ts`), por ejemplo "1 hora" o "2 horas".
+
 ## 1.5.0 — Privacidad y términos de uso
 
 - **Política de tratamiento de datos personales y Términos de uso.** Nueva pantalla pública `LegalScreen` (`/?doc=privacidad` y `/?doc=terminos`) con índice, versión, fecha de vigencia y opción de imprimir. La política sigue la Ley 1581 de 2012 y el Decreto 1377 de 2013: responsable y encargado, datos que se recogen, finalidades, autorización, derechos del titular, plazos de consultas (10 días hábiles) y reclamos (15 días hábiles), seguridad, transferencias, conservación, almacenamiento en el navegador y menores de edad. Los términos recogen las reglas de reserva directamente de `RULES`, así que siempre coinciden con la aplicación.

@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import {
   Building2, CalendarDays, Download, CalendarPlus, CalendarX, ChartColumn, ClipboardList, KeyRound, LayoutGrid, Pencil, Plus,
-  RefreshCw, Search, ShieldCheck, Trash2, TriangleAlert, UserCog, UserPlus, Users, Wrench,
+  RefreshCw, Search, Settings, ShieldCheck, Trash2, TriangleAlert, UserCog, UserPlus, Users, Wrench,
 } from "lucide-react";
 import AppShell, { type NavItem } from "../components/AppShell";
 import StatusBadge from "../components/StatusBadge";
@@ -19,6 +19,7 @@ import {
   type AdminUser, type ReservationStatus, type Role, type Session, type Space, type SpaceEstado, type SpaceInput,
 } from "../api";
 import { exportReservationsCsv } from "../lib/export";
+import RulesSettings from "../components/RulesSettings";
 import { formatDate, timeAgo } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
 import { usePersistedState } from "../lib/persist";
@@ -29,8 +30,8 @@ interface Props {
   onOpenCatalog: () => void;
 }
 
-type Tab = "overview" | "spaces" | "reservations" | "users" | "support" | "types";
-const TABS: readonly Tab[] = ["overview", "spaces", "reservations", "users", "support", "types"];
+type Tab = "overview" | "spaces" | "reservations" | "users" | "support" | "types" | "settings";
+const TABS: readonly Tab[] = ["overview", "spaces", "reservations", "users", "support", "types", "settings"];
 
 const TITLES: Record<Tab, string> = {
   overview: "Dashboard",
@@ -39,6 +40,7 @@ const TITLES: Record<Tab, string> = {
   users: "Usuarios",
   support: "Soporte técnico",
   types: "Tipos de espacio",
+  settings: "Configuración",
 };
 
 export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Props) {
@@ -55,6 +57,7 @@ export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Pro
     { id: "users", icon: <Users />, label: "Usuarios" },
     { id: "support", icon: <Wrench />, label: "Soporte técnico", badge: dashboard.data?.openIncidents },
     { id: "types", icon: <LayoutGrid />, label: "Tipos de espacio" },
+    { id: "settings", icon: <Settings />, label: "Configuración" },
     { id: "catalog", icon: <CalendarPlus />, label: "Reservar un espacio" },
   ];
 
@@ -95,6 +98,7 @@ export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Pro
         />
       )}
       {tab === "reservations" && <ReservationsAdmin />}
+      {tab === "settings" && <RulesSettings />}
       {tab === "users" && <UsersAdmin session={session} />}
       {tab === "support" && <div className="max-w-4xl"><IncidentsPanel onChanged={spacesChanged} /></div>}
       {tab === "types" && (

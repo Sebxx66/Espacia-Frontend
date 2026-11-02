@@ -1,4 +1,5 @@
 import { RULES } from "../api";
+import { cancelRuleText, dailyLimitText, plural, scheduleText } from "../lib/format";
 import { institutionName, LEGAL } from "./config";
 
 // Textos de la Política de privacidad y de los Términos de uso.
@@ -209,10 +210,10 @@ export function termsOfUse(): LegalDoc {
         blocks: [
           {
             list: [
-              `Las reservas se hacen dentro del horario de ${RULES.openHour}:00 a ${RULES.closeHour}:00 y por un máximo de ${RULES.maxHours} horas cada una.`,
-              `Puedes tener hasta ${RULES.maxActive} reservas activas al mismo tiempo y reservar con hasta ${RULES.daysAhead} días de anticipación.`,
-              `Por día puedes reservar hasta ${RULES.maxEquipmentPerDay} equipo tecnológico y ${RULES.maxRoomsPerDay} salas o talleres.`,
-              `Puedes cancelar sin consecuencia hasta ${RULES.cancelHoursBefore} hora antes del inicio. Si ya no necesitas el espacio, cancélalo para que otra persona pueda usarlo.`,
+              `Las reservas se hacen dentro del horario de ${scheduleText()} y por un máximo de ${plural(RULES.maxHours, "hora", "horas")} cada una.`,
+              `Puedes tener hasta ${plural(RULES.maxActive, "reserva activa", "reservas activas")} al mismo tiempo y reservar con hasta ${plural(RULES.daysAhead, "día", "días")} de anticipación.`,
+              `Por día puedes reservar hasta ${dailyLimitText()}.`,
+              `${cancelRuleText()}, sin consecuencia. Si ya no necesitas el espacio, cancélalo para que otra persona pueda usarlo.`,
               "Puedes extender una reserva 1 hora si el espacio está libre, sin superar el máximo de horas ni el horario de cierre.",
               `Debes presentarte al personal al llegar. Si nadie valida tu llegada en los primeros ${RULES.noShowMinutes} minutos, la reserva se marca como no asistida y el espacio queda libre. Las reservas no asistidas cuentan para el límite diario.`,
             ],
@@ -282,6 +283,7 @@ export function termsOfUse(): LegalDoc {
         id: "cambios",
         title: "10. Cambios y legislación aplicable",
         blocks: [
+          "Las reglas de reserva de la sección 3 son las vigentes en este momento: la Institución puede ajustarlas según su reglamento y siempre se muestran actualizadas en la aplicación.",
           "Estos términos pueden actualizarse; los cambios importantes se informarán dentro de la aplicación.",
           `Se rigen por las leyes de la República de Colombia. Versión ${LEGAL.version}, vigente desde el ${LEGAL.effectiveDate} en ${LEGAL.city}.`,
         ],

@@ -5,6 +5,7 @@ import PhoneQr from "../components/PhoneQr";
 import { forgotPassword, login, register, resetPassword, RULES, type Session } from "../api";
 import { Alert, Button, Field, Input } from "../components/ui";
 import { LEGAL } from "../legal/config";
+import { plural, scheduleText } from "../lib/format";
 
 interface Props {
   onLogin: (session: Session) => void;
@@ -134,7 +135,7 @@ export default function LoginScreen({ onLogin }: Props) {
           <ul className="space-y-4">
             {[
               { icon: <CalendarCheck className="w-5 h-5" />, title: "Disponibilidad real", text: "Ves qué horarios están libres antes de reservar." },
-              { icon: <Timer className="w-5 h-5" />, title: "Reserva en segundos", text: `Bloques de hasta ${RULES.maxHours} horas, de ${RULES.openHour}:00 a ${RULES.closeHour}:00.` },
+              { icon: <Timer className="w-5 h-5" />, title: "Reserva en segundos", text: `Bloques de hasta ${plural(RULES.maxHours, "hora", "horas")}, de ${scheduleText()}.` },
               { icon: <Mail className="w-5 h-5" />, title: "Avisos por correo", text: "Confirmación al reservar y un recordatorio antes de que empiece." },
               { icon: <ShieldCheck className="w-5 h-5" />, title: "Acceso por rol", text: "Estudiantes, funcionarios y administradores con su propio panel." },
             ].map((f) => (

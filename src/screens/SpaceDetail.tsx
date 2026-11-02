@@ -6,7 +6,7 @@ import {
   createReservation, getAvailability, getSpace, RULES, spaceImage, swapToFallback,
   type Reservation, type Session, type Slot,
 } from "../api";
-import { formatDateLong, hourLabel, hourOf, parseISODate, toISODate, todayISO } from "../lib/format";
+import { cancelRuleText, formatDateLong, hourLabel, hourOf, parseISODate, plural, scheduleText, toISODate, todayISO } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
 import AddToCalendar from "../components/AddToCalendar";
 
@@ -22,7 +22,6 @@ type Step = "date" | "time" | "confirm" | "success";
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 // Bloques de una hora: 08:00 ... 19:00
-const BLOCKS = Array.from({ length: RULES.closeHour - RULES.openHour }, (_, i) => RULES.openHour + i);
 
 export default function SpaceDetail({ session, spaceId, onBack, onViewReservations }: Props) {
   const { data: space, loading, error, reload } = useLoader(() => getSpace(spaceId), [spaceId]);
@@ -36,6 +35,8 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
   const [date, setDate] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [slotsError, setSlotsError] = useState<string | null>(null);
+  // Bloques de una hora dentro del horario vigente (configurable por el administrador)
+  const BLOCKS = Array.from({ length: RULES.closeHour - RULES.openHour }, (_, i) => RULES.openHour + i);
   const [start, setStart] = useState<number | null>(null);
   const [end, setEnd] = useState<number | null>(null); // último bloque incluido
   const [reason, setReason] = useState("");
@@ -185,10 +186,10 @@ export default function SpaceDetail({ session, spaceId, onBack, onViewReservatio
               <h3 className="font-display font-600 text-white text-sm mb-3">Normas de uso</h3>
               <ul className="space-y-2 text-xs text-[#8A93AD]">
                 {[
-                  `Horario de ${RULES.openHour}:00 a ${RULES.closeHour}:00`,
-                  `Máximo ${RULES.maxHours} horas por reserva`,
-                  `Máximo ${RULES.maxActive} reservas activas a la vez`,
-                  `Cancelación hasta ${RULES.cancelHoursBefore} hora antes`,
+                  `Horario de ${scheduleText()}`,
+                  `Máximo ${plural(RULES.maxHours, "hora", "horas")} por reserva`,
+                  `Máximo ${plural(RULES.maxActive, "reserva activa", "reservas activas")} a la vez`,
+                  cancelRuleText(),
                   `Si no llegas en ${RULES.noShowMinutes} minutos, la reserva se libera`,
                   `Reservas con hasta ${RULES.daysAhead} días de anticipación`,
                   "Presenta tu reserva al personal al llegar",

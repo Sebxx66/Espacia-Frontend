@@ -7,7 +7,7 @@ import FunctionalDashboard from "./screens/FunctionalDashboard";
 import { UiProvider } from "./components/ui";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LegalScreen, { type LegalKey } from "./screens/LegalScreen";
-import { clearSession, loadSession, setUnauthorizedHandler, type Role, type Session } from "./api";
+import { clearSession, loadRules, loadSession, setUnauthorizedHandler, type Role, type Session } from "./api";
 import { clearPersisted, readPersisted, writePersisted } from "./lib/persist";
 
 export type { Role };
@@ -55,6 +55,13 @@ function restoreNav(session: Session | null): NavState {
 }
 
 export default function App() {
+  // Las reglas de reserva vigentes se cargan antes de mostrar cualquier pantalla
+  const [rulesReady, setRulesReady] = useState(false);
+  useEffect(() => {
+    void loadRules().finally(() => setRulesReady(true));
+  }, []);
+  if (!rulesReady) return <div className="min-h-screen bg-[#0B0F1A]" aria-busy="true" />;
+
   return (
     <ErrorBoundary>
       <UiProvider>
