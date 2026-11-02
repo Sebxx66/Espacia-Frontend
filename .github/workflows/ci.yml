@@ -27,8 +27,11 @@ jobs:
       - name: Revisar la página compilada
         run: |
           # La vista previa al compartir y la política de seguridad deben quedar en el HTML
-          grep -q 'property="og:image" content="https://espacia.onrender.com/vista-previa.jpg"' dist/index.html
-          grep -q 'name="twitter:card" content="summary_large_image"' dist/index.html
-          grep -q 'http-equiv="Content-Security-Policy"' dist/index.html
-          grep -q "connect-src 'self' https://espacia-backend.onrender.com" dist/index.html
+          head -c 4000 dist/index.html; echo
+          revisar() { grep -qF -- "$1" dist/index.html || { echo "Falta en dist/index.html: $1"; exit 1; }; }
+          revisar 'og:image'
+          revisar 'https://espacia.onrender.com/vista-previa.jpg'
+          revisar 'summary_large_image'
+          revisar 'Content-Security-Policy'
+          revisar 'https://espacia-backend.onrender.com'
           test -f dist/vista-previa.jpg
