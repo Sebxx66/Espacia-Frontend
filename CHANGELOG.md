@@ -2,6 +2,10 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.11.0 — Publicada en Render
+
+- Espacia está en línea en [espacia.onrender.com](https://espacia.onrender.com). El frontend se publica como Static Site de Render: `npm ci && npm run build`, carpeta `dist` y `VITE_API_URL` apuntando al backend. El README tiene la demo al inicio y la configuración del sitio. Sin cambios en el código de la aplicación. (La versión 1.10.0 fue solo del backend.)
+
 ## 1.9.0 — Contraseñas más seguras
 
 - Los formularios de registro, cambio de contraseña y usuarios del administrador avisan que la contraseña no puede ser común ni incluir el nombre o el correo. El backend hace la revisión y su mensaje se muestra tal cual. (La versión 1.8.0 fue solo del backend: copias de seguridad.)

@@ -5,6 +5,9 @@ React 19 · Vite · TypeScript · Tailwind CSS 4.
 
 Necesita el backend de [Espacia-Backend](https://github.com/Sebxx66/Espacia-Backend) funcionando (por defecto en `http://localhost:8080`).
 
+> **Demo en línea:** [espacia.onrender.com](https://espacia.onrender.com) · API: [espacia-backend.onrender.com](https://espacia-backend.onrender.com/api/v1/rules)
+> Corre en el plan gratis de Render: si nadie la ha usado en 15 minutos, la primera carga tarda cerca de un minuto.
+
 ## Vista previa
 
 | Inicio de sesión | Catálogo de espacios |
@@ -102,6 +105,28 @@ Los tres roles pueden cambiar su contraseña desde el menú lateral.
 ## Versión compilada
 
 `npm run build` genera `dist/` sin el servidor de desarrollo, así que ahí no existe el reenvío de `/backend`. Define `VITE_API_URL` con la URL pública del backend antes de compilar y agrega el dominio del frontend en `CORS_ALLOWED_ORIGINS` del backend.
+
+## Despliegue en Render
+
+El frontend se publica como **Static Site** (gratis, sin límite de tráfico y sin dormirse). En Render: *New → Static Site* con este repositorio:
+
+| Campo | Valor |
+|---|---|
+| Branch | `main` |
+| Build Command | `npm ci && npm run build` |
+| Publish Directory | `dist` |
+
+Variables de entorno (se usan al compilar):
+
+| Variable | Valor |
+|---|---|
+| `VITE_API_URL` | Dirección pública del backend, ej. `https://espacia-backend.onrender.com` |
+| `NODE_VERSION` | `22` |
+| `VITE_INSTITUTION_NAME`, `VITE_PRIVACY_EMAIL`, `VITE_LEGAL_CITY` | Datos de la institución para la Política de privacidad y los Términos |
+
+Después pon la dirección del sitio (ej. `https://espacia.onrender.com`) en `FRONTEND_URL` y `CORS_ALLOWED_ORIGINS` del backend.
+La guía completa (base de datos, backend, correo con Brevo y el `render.yaml` que crea todo de una vez) está en el README del backend.
+Cada push a `main` se vuelve a publicar solo.
 
 ## Privacidad y términos
 
