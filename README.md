@@ -77,6 +77,7 @@ Con `npm run dev`, la pantalla de inicio muestra atajos de **accesos de demostra
 - Dashboard con estadísticas reales.
 - **Configuración** de las reglas de reserva: horario, duración máxima, reservas activas, límites por día, cancelación, minutos para liberar una no asistida y días de anticipación. Se aplican de inmediato en toda la aplicación.
 - **Auditoría:** historial de quién cambió reglas, cuentas, espacios, anulaciones e incidencias, con fecha e IP, y buscador.
+- **Compartir app:** QR grande para que el público abra Espacia en su celular, con pantalla completa para proyectarlo, copiar el enlace y descargar el QR.
 - Gestión de espacios, reservas, usuarios (roles, suspensión, restablecer contraseña), incidencias y tipos de espacio.
 - Exportación de las reservas filtradas a un archivo que abre Excel.
 

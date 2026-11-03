@@ -2,6 +2,12 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.14.0 — Compartir la app con un QR
+
+- **Sección "Compartir app"** en el panel del administrador, pensada para exposiciones y reuniones: un código QR grande que abre Espacia, el botón **Pantalla completa** para proyectarlo (fondo oscuro, QR al 70 % de la altura y la dirección en grande; Escape para salir), **Copiar enlace** y **Descargar QR** (PNG de 1024 px para diapositivas o impresión). Incluye los pasos para que el público pruebe la app.
+- El QR lleva a la dirección desde la que se abrió Espacia. Si se usa desde el propio PC (localhost), se puede elegir entre la página publicada (`VITE_SITE_URL`, por defecto `https://espacia.onrender.com`) y la dirección del PC en el Wi-Fi.
+- Usa el mismo generador de QR propio de la pantalla de ingreso, sin librerías nuevas.
+
 ## 1.13.0 — Vista previa al compartir el enlace
 
 - Al pegar el enlace de Espacia en WhatsApp, LinkedIn, Teams, Facebook o X aparece una tarjeta con imagen, título y descripción en vez del enlace solo. La imagen (`public/vista-previa.jpg`, 1200×630, 100 KB) muestra el logo, el mensaje principal y el catálogo en el computador y en el celular. Las etiquetas Open Graph y de tarjeta grande se agregan al compilar desde `vite.config.ts` (`vistaPrevia`); como las redes piden la dirección completa de la imagen, se arma con `VITE_SITE_URL` (por defecto `https://espacia.onrender.com`). También se agrega la dirección canónica del sitio.

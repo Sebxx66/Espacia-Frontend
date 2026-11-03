@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import {
   BadgeCheck, Building2, CalendarDays, Download, MailCheck, CalendarPlus, CalendarX, ChartColumn, ClipboardList, KeyRound, LayoutGrid, Pencil, Plus,
-  History, RefreshCw, Search, Settings, ShieldCheck, Trash2, TriangleAlert, UserCog, UserPlus, Users, Wrench,
+  History, QrCode, RefreshCw, Search, Settings, ShieldCheck, Trash2, TriangleAlert, UserCog, UserPlus, Users, Wrench,
 } from "lucide-react";
 import AppShell, { type NavItem } from "../components/AppShell";
 import StatusBadge from "../components/StatusBadge";
@@ -21,6 +21,7 @@ import {
 import { exportReservationsCsv } from "../lib/export";
 import RulesSettings from "../components/RulesSettings";
 import AuditLog from "../components/AuditLog";
+import ShareApp from "../components/ShareApp";
 import { formatDate, timeAgo } from "../lib/format";
 import { useLoader } from "../lib/useLoader";
 import { usePersistedState } from "../lib/persist";
@@ -31,8 +32,8 @@ interface Props {
   onOpenCatalog: () => void;
 }
 
-type Tab = "overview" | "spaces" | "reservations" | "users" | "support" | "types" | "settings" | "audit";
-const TABS: readonly Tab[] = ["overview", "spaces", "reservations", "users", "support", "types", "settings", "audit"];
+type Tab = "overview" | "spaces" | "reservations" | "users" | "support" | "types" | "settings" | "audit" | "share";
+const TABS: readonly Tab[] = ["overview", "spaces", "reservations", "users", "support", "types", "settings", "audit", "share"];
 
 const TITLES: Record<Tab, string> = {
   overview: "Dashboard",
@@ -43,6 +44,7 @@ const TITLES: Record<Tab, string> = {
   types: "Tipos de espacio",
   settings: "Configuración",
   audit: "Registro de auditoría",
+  share: "Compartir la aplicación",
 };
 
 export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Props) {
@@ -61,6 +63,7 @@ export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Pro
     { id: "types", icon: <LayoutGrid />, label: "Tipos de espacio" },
     { id: "settings", icon: <Settings />, label: "Configuración" },
     { id: "audit", icon: <History />, label: "Auditoría" },
+    { id: "share", icon: <QrCode />, label: "Compartir app" },
     { id: "catalog", icon: <CalendarPlus />, label: "Reservar un espacio" },
   ];
 
@@ -103,6 +106,7 @@ export default function AdminDashboard({ session, onLogout, onOpenCatalog }: Pro
       {tab === "reservations" && <ReservationsAdmin />}
       {tab === "settings" && <RulesSettings />}
       {tab === "audit" && <AuditLog />}
+      {tab === "share" && <ShareApp />}
       {tab === "users" && <UsersAdmin session={session} />}
       {tab === "support" && <div className="max-w-4xl"><IncidentsPanel onChanged={spacesChanged} /></div>}
       {tab === "types" && (
