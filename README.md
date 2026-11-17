@@ -1,5 +1,11 @@
 # Espacia — Frontend
 
+[![CI](https://github.com/Sebxx66/Espacia-Frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/Sebxx66/Espacia-Frontend/actions/workflows/ci.yml)
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS 4](https://img.shields.io/badge/Tailwind%20CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+
 Aplicación web para reservar salas de estudio, equipos y talleres de la biblioteca.
 React 19 · Vite · TypeScript · Tailwind CSS 4.
 
@@ -7,6 +13,7 @@ Necesita el backend de [Espacia-Backend](https://github.com/Sebxx66/Espacia-Back
 
 > **Demo en línea:** [espacia.onrender.com](https://espacia.onrender.com) · API: [espacia-backend.onrender.com](https://espacia-backend.onrender.com/api/v1/rules)
 > Corre en el plan gratis de Render: si nadie la ha usado en 15 minutos, la primera carga tarda cerca de un minuto.
+> **No hace falta registrarse:** en la pantalla de inicio, *Prueba Espacia sin registrarte* entra con un clic como estudiante, funcionario o administrador (solo consulta). Los cambios se borran cada noche.
 
 ## Vista previa
 
@@ -57,7 +64,9 @@ Si no carga en el celular:
 - **Funcionarios:** los crea el administrador desde **Usuarios → Nuevo usuario**.
 - **Recuperar contraseña:** "¿Olvidaste tu contraseña?" envía un enlace al correo registrado.
 
-Con `npm run dev`, la pantalla de inicio muestra atajos de **accesos de demostración** que rellenan las cuentas de ejemplo del backend. No aparecen en la versión compilada (`npm run build`).
+Si el backend tiene la demostración pública activa (`DEMO_MODE=true`), la pantalla de inicio muestra **Prueba Espacia sin registrarte**, con botones que entran directamente con las cuentas de demostración. Las cuentas y la hora del reinicio las entrega el backend en `GET /api/v1/demo`, así que no hay contraseñas escritas en el frontend.
+
+Sin demostración pública, con `npm run dev` aparecen atajos de **accesos de desarrollo** que rellenan las cuentas de ejemplo del backend. No aparecen en la versión compilada (`npm run build`).
 
 ## Qué puede hacer cada rol
 
@@ -89,7 +98,9 @@ Los tres roles pueden cambiar su contraseña desde el menú lateral.
 |---|---|
 | `src/api.ts` | Cliente del backend: sesión JWT, llamadas y traducción de roles y estados |
 | `src/App.tsx` | Navegación entre pantallas según el rol |
-| `src/screens/` | Login y registro, panel de estudiante, detalle y reserva de un espacio, paneles de funcionario y administrador |
+| `src/screens/` | Login y registro, detalle y reserva de un espacio y panel de funcionario |
+| `src/screens/student/` | Secciones del panel de estudiante: catálogo, mis reservas y notificaciones |
+| `src/screens/admin/` | Secciones del panel de administrador: resumen con gráficos, espacios, tipos, reservas y usuarios, con sus formularios |
 | `src/components/ui.tsx` | Botones, formularios, modales, toasts y estados de carga, error y vacío |
 | `src/components/AppShell.tsx` | Menú lateral (cajón en celular), cabecera y cambio de contraseña |
 | `src/components/staff.tsx` | Acciones sobre reservas e incidencias, compartidas por funcionario y administrador |

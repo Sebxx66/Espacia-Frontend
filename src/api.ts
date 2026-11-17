@@ -501,6 +501,25 @@ function startSession(data: AuthResponse): Session {
   return session;
 }
 
+// Demostración pública: si el backend la tiene activa (DEMO_MODE=true), la pantalla de inicio
+// muestra botones para entrar con sus cuentas sin registrarse
+export interface DemoAccount {
+  rol: string;
+  nombre: string;
+  email: string;
+  password: string;
+}
+
+export interface DemoInfo {
+  enabled: boolean;
+  resetTime: string | null;
+  accounts: DemoAccount[];
+}
+
+export async function getDemoInfo(): Promise<DemoInfo> {
+  return request<DemoInfo>("/api/v1/demo", {}, false);
+}
+
 export async function login(email: string, password: string): Promise<Session> {
   return startSession(await request<AuthResponse>("/api/v1/auth/login", json("POST", { email, password }), false));
 }

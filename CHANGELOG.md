@@ -2,6 +2,12 @@
 
 Cambios del frontend de Espacia, del más reciente al más antiguo. Cada entrada explica qué cambió y cómo está hecho.
 
+## 1.15.0 — Demostración sin registrarse y paneles por secciones
+
+- **Prueba Espacia sin registrarte.** Si el backend tiene `DEMO_MODE=true`, la pantalla de inicio muestra botones para entrar con un clic como estudiante, funcionario o administrador (solo consulta), y avisa a qué hora se borran los cambios. Las cuentas llegan de `GET /api/v1/demo`, así que el frontend no guarda contraseñas. Los atajos que rellenaban el formulario quedan solo para `npm run dev` y usan el dominio `@espacia.local`.
+- **Paneles divididos en secciones.** `AdminDashboard.tsx` (828 líneas) y `StudentDashboard.tsx` (608) se separaron en un archivo por sección: `screens/admin/` (resumen, espacios, formulario de espacio, tipos, reservas, usuarios y sus ventanas) y `screens/student/` (catálogo, mis reservas y notificaciones). Cada pantalla principal queda en unas 130 líneas y solo decide qué sección mostrar. El comportamiento no cambia.
+- **Insignias** de integración continua y tecnologías en el README.
+
 ## 1.14.0 — Compartir la app con un QR
 
 - **Sección "Compartir app"** en el panel del administrador, pensada para exposiciones y reuniones: un código QR grande que abre Espacia, el botón **Pantalla completa** para proyectarlo (fondo oscuro, QR al 70 % de la altura y la dirección en grande; Escape para salir), **Copiar enlace** y **Descargar QR** (PNG de 1024 px para diapositivas o impresión). Incluye los pasos para que el público pruebe la app.

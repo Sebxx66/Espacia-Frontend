@@ -1,10 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, BadgeCheck, CalendarCheck, Eye, EyeOff, Lock, Mail, MailCheck, RefreshCw, ShieldCheck, Timer, UserPlus } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarCheck, Eye, EyeOff, Lock, Mail, MailCheck, PlayCircle, RefreshCw, ShieldCheck, Timer, UserPlus } from "lucide-react";
 import LogoMark from "../components/LogoMark";
 import PhoneQr from "../components/PhoneQr";
 import {
-  ApiError, checkVerification, EMAIL_NOT_VERIFIED, forgotPassword, isInstitutionalEmail, login, register,
-  resendVerification, resetPassword, RULES, verifyEmail, type Session,
+  ApiError, checkVerification, EMAIL_NOT_VERIFIED, forgotPassword, getDemoInfo, isInstitutionalEmail, login, register,
+  resendVerification, resetPassword, RULES, verifyEmail, type DemoInfo, type Session,
 } from "../api";
 import { Alert, Button, Field, Input } from "../components/ui";
 import { LEGAL } from "../legal/config";
@@ -19,11 +19,18 @@ type Mode = "login" | "register" | "forgot" | "reset" | "verify" | "resend";
 // Segundos de espera entre un reenvío del enlace de confirmación y el siguiente
 const RESEND_WAIT = 60;
 
-const DEMO_ACCOUNTS = [
-  { label: "Estudiante", email: "estudiante@bibliospace.local", password: "Demo12345" },
-  { label: "Funcionario", email: "funcionario@bibliospace.local", password: "Demo12345" },
-  { label: "Administrador", email: "admin@bibliospace.local", password: "Admin12345" },
+// Atajos para npm run dev (cuentas que crea el backend con SEED_DEMO_DATA=true)
+const DEV_ACCOUNTS = [
+  { label: "Estudiante", email: "estudiante@espacia.local", password: "Demo12345" },
+  { label: "Funcionario", email: "funcionario@espacia.local", password: "Demo12345" },
+  { label: "Administrador", email: "admin@espacia.local", password: "Admin12345" },
 ];
+
+const DEMO_LABELS: Record<string, string> = {
+  ROLE_ESTUDIANTE: "Estudiante",
+  ROLE_FUNCIONARIO: "Funcionario",
+  ROLE_ADMIN: "Administrador",
+};
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -51,6 +58,24 @@ export default function LoginScreen({ onLogin }: Props) {
   const [resending, setResending] = useState(false);
   const [verifyInfo, setVerifyInfo] = useState<{ email: string; nombre: string } | null>(null);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [demo, setDemo] = useState<DemoInfo | null>(null);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
+
+  // Si el backend tiene la demostración pública activa, se ofrecen sus cuentas
+  useEffect(() => {
+    getDemoInfo().then(setDemo).catch(() => setDemo(null));
+  }, []);
+
+  const enterDemo = async (email: string, pass: string) => {
+    setDemoLoading(email);
+    setError(null);
+    try {
+      onLogin(await login(email, pass));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo entrar a la demostración.");
+      setDemoLoading(null);
+    }
+  };
 
   // Al abrir el enlace se revisa de una vez si sigue vigente
   useEffect(() => {
@@ -426,12 +451,43 @@ export default function LoginScreen({ onLogin }: Props) {
                   : { login: "Ingresar", register: "Crear cuenta", forgot: "Enviar enlace", reset: "Cambiar contraseña", verify: "Activar mi cuenta", resend: "Enviar enlace" }[mode]}
               </Button>
 
-              {/* Solo en modo desarrollo (npm run dev): atajos para la demostración */}
-              {mode === "login" && import.meta.env.DEV && (
+              {/* Demostración pública: entra con un clic, sin registrarse */}
+              {mode === "login" && demo?.enabled && demo.accounts.length > 0 && (
+                <div className="mt-8 rounded-xl border border-[#4C6EF5]/40 bg-[#4C6EF5]/10 p-4">
+                  <p className="flex items-center gap-2 text-sm font-600 text-white">
+                    <PlayCircle className="w-4 h-4 text-[#8EA4FF]" /> Prueba Espacia sin registrarte
+                  </p>
+                  <p className="text-xs text-[#AEB7D3] mt-1">
+                    Entra con una cuenta de demostración.
+                    {demo.resetTime && ` Los cambios se borran todos los días a las ${demo.resetTime}.`}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+                    {demo.accounts.map((d) => (
+                      <Button
+                        key={d.email}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        loading={demoLoading === d.email}
+                        disabled={demoLoading !== null}
+                        onClick={() => enterDemo(d.email, d.password)}
+                      >
+                        {DEMO_LABELS[d.rol] ?? d.rol}
+                      </Button>
+                    ))}
+                  </div>
+                  {demo.accounts.some((d) => d.rol === "ROLE_ADMIN") && (
+                    <p className="text-[11px] text-[#8A93AD] mt-2">El administrador de demostración solo puede consultar.</p>
+                  )}
+                </div>
+              )}
+
+              {/* Solo en modo desarrollo (npm run dev) y sin demostración pública: atajos para rellenar el formulario */}
+              {mode === "login" && import.meta.env.DEV && !demo?.enabled && (
                 <div className="mt-8 rounded-xl border border-dashed border-[#2A3555] p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-[#6C7693] mb-2">Accesos de demostración</p>
+                  <p className="text-[11px] uppercase tracking-wide text-[#6C7693] mb-2">Accesos de desarrollo</p>
                   <div className="flex flex-wrap gap-2">
-                    {DEMO_ACCOUNTS.map((d) => (
+                    {DEV_ACCOUNTS.map((d) => (
                       <button
                         key={d.label}
                         type="button"
