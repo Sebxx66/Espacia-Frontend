@@ -459,7 +459,7 @@ export default function LoginScreen({ onLogin }: Props) {
                   </p>
                   <p className="text-xs text-[#AEB7D3] mt-1">
                     Entra con una cuenta de demostración.
-                    {demo.resetTime && ` Los cambios se borran todos los días a las ${demo.resetTime}.`}
+                    {demo.resetTime && ` Los cambios se borran todos los días a las ${demo.resetTime.replace(/\.$/, "")}.`}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
                     {demo.accounts.map((d) => (
